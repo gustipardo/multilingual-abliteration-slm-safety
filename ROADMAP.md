@@ -4,6 +4,32 @@
 
 ---
 
+## Hardware: What Runs on Your Laptop
+
+**Machine:** ASUS ROG Zephyrus G16 GU605MI
+- GPU: RTX 4070 Laptop (8 GB GDDR6)
+- RAM: 32 GB LPDDR5X
+- OS: Linux (detected) — if running WSL2, CUDA works but check `nvidia-smi` inside WSL
+
+**VRAM requirements at inference (not training):**
+
+| Model | Params | bfloat16 weights | + KV cache/activations | Total | Fits in 8 GB? |
+|-------|--------|-----------------|----------------------|-------|--------------|
+| E2B | ~2B | 4 GB | ~1-2 GB | ~5-6 GB | ✅ Yes — bfloat16 |
+| E4B | ~4B | 8 GB | ~1-2 GB | ~9-10 GB | ❌ No in bfloat16 |
+| E4B | ~4B | 4 GB (int8) | ~1-2 GB | ~5-6 GB | ✅ Yes — int8 quantization |
+| 12B | ~12B | 24 GB | ~2 GB | ~26 GB | ❌ Needs RunPod |
+| 27B | ~27B | 54 GB | ~3 GB | ~57 GB | ❌ Needs RunPod |
+
+**Verdict:**
+- **E2B** → run locally in bfloat16. No issues.
+- **E4B** → run locally in **int8** (`load_in_8bit: true` in `configs/experiment.yaml`). Already configured.
+- **12B / 27B** → RunPod RTX 4090 (24 GB VRAM). 27B needs 4-bit quantization on 4090 (~14 GB).
+
+**Note on WildGuard prompts:** Downloaded at runtime from HuggingFace (`allenai/wildguardmix`) via `scripts/01_prepare_dataset.py`. Not stored in this repo. The 50 sampled + translated prompts are saved to `data/prompts/` (gitignored locally, pushed to HF datasets for reproducibility).
+
+---
+
 ## Phase 0: Theory (COMPLETED)
 
 ### What we did

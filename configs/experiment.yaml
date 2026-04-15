@@ -1,0 +1,74 @@
+# Experiment configuration
+# All hyperparameters and model IDs in one place — change here, affects all scripts
+
+seed: 42
+
+# ── Models ──────────────────────────────────────────────────────────────────
+# Verify exact HuggingFace IDs before running — Gemma 4 released April 2026
+models:
+  base:
+    e2b: google/gemma-4-e2b-it       # ~2B params | runs on laptop (bfloat16)
+    e4b: google/gemma-4-e4b-it       # ~4B params | runs on laptop (int8)
+    12b: google/gemma-4-12b-it       # ~12B params | RunPod
+    27b: google/gemma-4-27b-it       # ~27B params | RunPod
+
+  abliterated:
+    e2b: TrevorS/gemma-4-e2b-it-abliterated   # verify on HuggingFace
+    e4b: TrevorS/gemma-4-e4b-it-abliterated   # verify on HuggingFace
+    12b: TrevorS/gemma-4-12b-it-abliterated   # verify on HuggingFace
+    27b: TrevorS/gemma-4-27b-it-abliterated   # verify on HuggingFace
+
+# ── Hardware config per model size ──────────────────────────────────────────
+hardware:
+  e2b:
+    dtype: bfloat16       # 4GB VRAM — fits in RTX 4070 laptop (8GB)
+    device_map: auto
+    load_in_8bit: false
+    load_in_4bit: false
+  e4b:
+    dtype: float16
+    device_map: auto
+    load_in_8bit: true    # 4B in bfloat16 = 8GB, OOMs with KV cache — use int8 (~6GB total)
+    load_in_4bit: false
+  12b:
+    dtype: bfloat16
+    device_map: auto
+    load_in_8bit: false
+    load_in_4bit: false   # 24GB — fits on RunPod 4090 (24GB)
+  27b:
+    dtype: bfloat16
+    device_map: auto
+    load_in_8bit: false
+    load_in_4bit: true    # 27B in bfloat16 = 54GB — use 4-bit (~14GB) on 4090
+
+# ── Dataset ─────────────────────────────────────────────────────────────────
+dataset:
+  source: allenai/wildguardmix
+  split: test
+  n_prompts: 50           # sample size per language
+  harm_label: harmful     # filter column
+
+# ── Languages ────────────────────────────────────────────────────────────────
+languages:
+  - en   # English     (high resource, control)
+  - es   # Spanish     (high resource)
+  - zh   # Chinese     (high resource)
+  - pt   # Portuguese  (high resource)
+  - ar   # Arabic      (medium resource)
+  - hi   # Hindi       (medium/low resource)
+
+# ── Inference ────────────────────────────────────────────────────────────────
+inference:
+  max_new_tokens: 512     # full response — required for Gemma 4 delayed refusal detection
+  do_sample: false        # greedy decoding — reproducible
+  batch_size: 1           # safe default; increase if VRAM allows
+
+# ── Evaluation ───────────────────────────────────────────────────────────────
+evaluation:
+  judge_model: claude-haiku-4-5-20251001
+  judge_max_tokens: 10
+
+# ── Mechanistic analysis ─────────────────────────────────────────────────────
+mechanistic:
+  layer_idx: -1           # last layer for refusal direction extraction
+  n_components_pca: 2

@@ -1,0 +1,31 @@
+# Credentials
+.env
+
+# Model weights (large, downloaded at runtime)
+.cache/
+*.bin
+*.safetensors
+
+# Outputs (uploaded to HuggingFace instead)
+data/outputs/
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+*.egg-info/
+
+# OS
+.DS_Store
+
+# Obsidian vault config (local editor, not relevant to research)
+.obsidian/
+
+# PDFs (copyright / personal documents — keep locally, not in repo)
+*.pdf
+
+# Private notes (WhatsApp logs, scratch files)
+context.txt
+
+# Keep prompts in git (they're just text, ~10KB)
+!data/prompts/

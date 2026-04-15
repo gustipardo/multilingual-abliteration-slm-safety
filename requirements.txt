@@ -1,0 +1,29 @@
+# Core ML
+torch>=2.3.0
+transformers>=4.45.0
+accelerate>=0.33.0
+bitsandbytes>=0.43.0      # 8-bit and 4-bit quantization
+
+# Data
+datasets>=2.21.0          # HuggingFace datasets (WildGuardMix)
+pandas>=2.2.0
+numpy>=1.26.0
+
+# Translation
+deep-translator>=1.11.4
+
+# Analysis
+scikit-learn>=1.5.0       # Silhouette Score, PCA
+scipy>=1.14.0             # Spearman correlation
+
+# Visualization
+matplotlib>=3.9.0
+seaborn>=0.13.0
+
+# LLM Judge
+anthropic>=0.34.0
+
+# Config + Utils
+pyyaml>=6.0.2
+python-dotenv>=1.0.1
+tqdm>=4.66.0
