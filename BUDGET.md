@@ -10,10 +10,11 @@
 
 | Item | Purpose | Cost |
 |------|---------|------|
-| Claude Code Max (1 month) | Development environment, code assistance, orchestration | $200 |
-| RunPod GPU compute | Cloud inference for 12B + 27B models (RTX 4090) | $50 |
-| Anthropic API (Claude Haiku) | LLM-as-judge for 2,400+ model responses | $20 |
-| Contingency | Reruns, debugging, unexpected compute needs | $80 |
+| Claude Code Max (1 month) | AI-assisted development: scripting, analysis, orchestration | $200 |
+| RunPod GPU compute | Cloud inference for 26B-A4B + 31B models (RTX 4090) | $50 |
+| Anthropic API (Claude Haiku) | LLM-as-judge for 2,400+ model responses + translations | $20 |
+| Other APIs & services | HuggingFace dataset hosting, translation quality validation, deep-translator overages | $30 |
+| WildGuardMix access evaluation | Replicate results on gated benchmark for peer-review reproducibility | $50 |
 | **Total** | | **$350** |
 
 ---
@@ -24,11 +25,11 @@
 
 | Task | Model | Est. hours | Cost |
 |------|-------|-----------|------|
-| Inference runs | Gemma 4 12B | 4 h | $3 |
-| Inference runs | Gemma 4 27B | 9 h | $7 |
-| Activation extraction (mechanistic analysis) | 12B + 27B | 11 h | $8 |
+| Inference runs | Gemma 4 26B-A4B (MoE) | 5 h | $4 |
+| Inference runs | Gemma 4 31B | 10 h | $7 |
+| Activation extraction (mechanistic analysis) | 26B + 31B | 12 h | $9 |
 | Debugging + reruns buffer | — | 10 h | $7 |
-| **Subtotal** | | **34 h** | **$25** |
+| **Subtotal** | | **37 h** | **$27** |
 
 > Padded to $50 to account for unexpected reruns and pod startup/teardown overhead.
 

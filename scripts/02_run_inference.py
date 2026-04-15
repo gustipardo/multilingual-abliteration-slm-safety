@@ -45,11 +45,18 @@ def load_model(model_id, hw_cfg):
 
     dtype = torch.bfloat16 if hw_cfg["dtype"] == "bfloat16" else torch.float16
 
+    # With bitsandbytes quantization, device_map="auto" over-estimates memory
+    # and may allocate to CPU, which bnb doesn't allow. Force all to GPU 0.
+    if quant_config is not None and torch.cuda.is_available():
+        effective_device_map = {"": 0}
+    else:
+        effective_device_map = hw_cfg["device_map"]
+
     model = AutoModelForCausalLM.from_pretrained(
         model_id,
         quantization_config=quant_config,
-        torch_dtype=dtype if quant_config is None else None,
-        device_map=hw_cfg["device_map"],
+        dtype=dtype if quant_config is None else None,
+        device_map=effective_device_map,
         trust_remote_code=True,
     )
     tokenizer = AutoTokenizer.from_pretrained(model_id, trust_remote_code=True)

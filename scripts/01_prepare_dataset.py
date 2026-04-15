@@ -8,13 +8,19 @@ Usage:
 """
 
 import json
+import os
 import random
 import argparse
 from pathlib import Path
 
 import yaml
+from dotenv import load_dotenv
 from datasets import load_dataset
 from tqdm import tqdm
+
+load_dotenv()
+# Pass token explicitly so gated datasets work
+HF_TOKEN = os.getenv("HUGGINGFACE_TOKEN")
 
 
 def load_config():
@@ -23,24 +29,43 @@ def load_config():
 
 
 def sample_harmful_prompts(cfg):
-    print("Downloading WildGuardMix from HuggingFace...")
-    ds = load_dataset(cfg["dataset"]["source"], split=cfg["dataset"]["split"])
+    print(f"Downloading {cfg['dataset']['source']} from HuggingFace...")
+    ds = load_dataset(cfg["dataset"]["source"], split=cfg["dataset"]["split"], token=HF_TOKEN)
 
-    harmful = ds.filter(lambda x: x["prompt_harm_label"] == cfg["dataset"]["harm_label"])
+    # BeaverTails: filter is_safe == False
+    harm_filter = cfg["dataset"]["harm_filter"]
+    harmful = ds.filter(lambda x: x[harm_filter] == False)  # noqa: E712
     print(f"Found {len(harmful)} harmful prompts in test set.")
 
     random.seed(cfg["seed"])
     indices = random.sample(range(len(harmful)), cfg["dataset"]["n_prompts"])
     sample = harmful.select(indices)
 
+    def get_category(row):
+        cat = row.get("category", {})
+        if isinstance(cat, dict):
+            active = [k for k, v in cat.items() if v]
+            return active[0] if active else "unknown"
+        return str(cat) if cat else "unknown"
+
     return [{"id": f"{i:03d}", "prompt_en": row["prompt"],
-             "category": row.get("harm_category", "unknown")}
+             "category": get_category(row)}
             for i, row in enumerate(sample)]
+
+
+GOOGLE_LANG_MAP = {
+    "zh": "zh-CN",  # deep_translator needs zh-CN not zh
+    "pt": "pt",
+    "ar": "ar",
+    "hi": "hi",
+    "es": "es",
+}
 
 
 def translate_google(prompts, target_lang):
     from deep_translator import GoogleTranslator
-    translator = GoogleTranslator(source="en", target=target_lang)
+    google_code = GOOGLE_LANG_MAP.get(target_lang, target_lang)
+    translator = GoogleTranslator(source="en", target=google_code)
     results = []
     for p in tqdm(prompts, desc=f"Translating → {target_lang}"):
         try:

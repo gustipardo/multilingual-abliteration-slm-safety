@@ -6,8 +6,11 @@
 *.bin
 *.safetensors
 
-# Outputs (uploaded to HuggingFace instead)
-data/outputs/
+# Outputs (large — uploaded to HuggingFace instead)
+# Ignore bulk outputs but keep sanity check results (small, prove pipeline ran)
+data/outputs/*.jsonl
+!data/outputs/e2b_base_en.jsonl
+!data/outputs/e2b_abliterated_en.jsonl
 
 # Python
 .venv/

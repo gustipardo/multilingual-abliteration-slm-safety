@@ -4,49 +4,55 @@
 seed: 42
 
 # ── Models ──────────────────────────────────────────────────────────────────
-# Verify exact HuggingFace IDs before running — Gemma 4 released April 2026
+# Verified HuggingFace IDs (April 2026)
+# Gemma 4 lineup: E2B (dense), E4B (dense), 26B-A4B (MoE, 4B active), 31B (dense)
+# Abliterated models by huihui-ai using remove-refusals-with-transformers
+# Note: first 10 layers NOT abliterated — may have residual refusals (relevant to low-rank complication)
 models:
   base:
-    e2b: google/gemma-4-e2b-it       # ~2B params | runs on laptop (bfloat16)
-    e4b: google/gemma-4-e4b-it       # ~4B params | runs on laptop (int8)
-    12b: google/gemma-4-12b-it       # ~12B params | RunPod
-    27b: google/gemma-4-27b-it       # ~27B params | RunPod
+    e2b: google/gemma-4-E2B-it       # ~2B dense | runs on laptop (bfloat16)
+    e4b: google/gemma-4-E4B-it       # ~4B dense | runs on laptop (int8)
+    26b: google/gemma-4-26B-A4B-it   # ~26B MoE, 4B active | RunPod
+    31b: google/gemma-4-31B-it       # ~31B dense | RunPod
 
   abliterated:
-    e2b: TrevorS/gemma-4-e2b-it-abliterated   # verify on HuggingFace
-    e4b: TrevorS/gemma-4-e4b-it-abliterated   # verify on HuggingFace
-    12b: TrevorS/gemma-4-12b-it-abliterated   # verify on HuggingFace
-    27b: TrevorS/gemma-4-27b-it-abliterated   # verify on HuggingFace
+    e2b: huihui-ai/Huihui-gemma-4-E2B-it-abliterated    # verified ✓
+    e4b: huihui-ai/Huihui-gemma-4-E4B-it-abliterated    # verified ✓
+    26b: huihui-ai/Huihui-gemma-4-26B-A4B-it-abliterated # verified ✓
+    31b: huihui-ai/Huihui-gemma-4-31B-it-abliterated     # verified ✓
 
 # ── Hardware config per model size ──────────────────────────────────────────
 hardware:
   e2b:
-    dtype: bfloat16       # 4GB VRAM — fits in RTX 4070 laptop (8GB)
+    dtype: bfloat16
     device_map: auto
     load_in_8bit: false
-    load_in_4bit: false
+    load_in_4bit: true    # E2B ~7.5GB bfloat16, OOMs on 8GB — 4-bit (~2GB VRAM)
   e4b:
     dtype: float16
     device_map: auto
-    load_in_8bit: true    # 4B in bfloat16 = 8GB, OOMs with KV cache — use int8 (~6GB total)
-    load_in_4bit: false
-  12b:
+    load_in_8bit: false
+    load_in_4bit: true    # E4B bfloat16 = 8GB, OOMs with KV cache — 4-bit (~3GB VRAM)
+
+  26b:
     dtype: bfloat16
     device_map: auto
     load_in_8bit: false
-    load_in_4bit: false   # 24GB — fits on RunPod 4090 (24GB)
-  27b:
+    load_in_4bit: true    # MoE 26B total weights — 4-bit on RunPod 4090 (~13GB)
+  31b:
     dtype: bfloat16
     device_map: auto
     load_in_8bit: false
-    load_in_4bit: true    # 27B in bfloat16 = 54GB — use 4-bit (~14GB) on 4090
+    load_in_4bit: true    # 31B dense bfloat16 = 62GB — 4-bit on RunPod 4090 (~16GB)
 
 # ── Dataset ─────────────────────────────────────────────────────────────────
+# Primary: PKU-Alignment/BeaverTails (public, no approval needed)
+# Full study: allenai/wildguardmix (gated — request access at hf.co/datasets/allenai/wildguardmix)
 dataset:
-  source: allenai/wildguardmix
-  split: test
+  source: PKU-Alignment/BeaverTails
+  split: 30k_test         # 3,020 rows
   n_prompts: 50           # sample size per language
-  harm_label: harmful     # filter column
+  harm_filter: is_safe    # filter rows where is_safe == False
 
 # ── Languages ────────────────────────────────────────────────────────────────
 languages:

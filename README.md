@@ -2,9 +2,27 @@
 
 **Does English abliteration collapse multilingual safety more severely in smaller models?**
 
-[![Status: Phase 2 — Dataset](https://img.shields.io/badge/status-Phase%202%20%E2%80%94%20Dataset-blue)](ROADMAP.md)
-[![Models: Gemma 4](https://img.shields.io/badge/models-Gemma%204%20E2B%20%7C%20E4B%20%7C%2012B%20%7C%2027B-orange)](configs/experiment.yaml)
+[![Status: Phase 3 — Preliminary Results](https://img.shields.io/badge/status-Phase%203%20%E2%80%94%20Preliminary%20Results-yellow)](EXPERIMENTS.md)
+[![Models: Gemma 4](https://img.shields.io/badge/models-Gemma%204%20E2B%20%7C%20E4B%20%7C%2026B%20%7C%2031B-orange)](configs/experiment.yaml)
 [![Languages: 6](https://img.shields.io/badge/languages-EN%20%7C%20ES%20%7C%20ZH%20%7C%20AR%20%7C%20HI%20%7C%20PT-green)](configs/experiment.yaml)
+[![Paused: Awaiting Compute Funding](https://img.shields.io/badge/paused-awaiting%20compute%20funding-red)](BUDGET.md)
+
+## Preliminary Results
+
+> We ran the first sanity check on April 15, 2026 — **safety collapse confirmed on laptop hardware in under 5 minutes.** Full multilingual study is paused pending compute funds for cloud GPU phases.
+
+**Gemma 4 E2B — 5 English harmful prompts, base vs abliterated:**
+
+| Condition | Refused | Complied | Partial |
+|-----------|---------|----------|---------|
+| Base model | 3/5 (60%) | 0/5 | 2/5 |
+| Abliterated | 0/5 | 4/5 (80%) | 1/5 |
+
+The partial compliance case (`drug trafficking`) is the most telling: the abliterated model opens with *"I can't give you specific advice"* then proceeds to explain market dynamics, distribution methods, and concealment strategies. A keyword detector would mark this REFUSED. An LLM judge reading the full response correctly marks it COMPLIED. See [EXPERIMENTS.md](EXPERIMENTS.md) for full details and reproduction steps.
+
+**→ This validates our LLM-as-judge methodology and confirms the pipeline works end-to-end.**
+
+---
 
 ## Motivation
 
@@ -48,14 +66,16 @@ Wang et al. (2025) "Refusal Direction is Universal Across Safety-Aligned Languag
 
 ## Models
 
-| Model | Parameters | Hardware | Quantization |
-|-------|-----------|----------|-------------|
-| `google/gemma-4-e2b-it` | ~2B | RTX 4070 laptop | bfloat16 |
-| `google/gemma-4-e4b-it` | ~4B | RTX 4070 laptop | int8 |
-| `google/gemma-4-12b-it` | ~12B | RTX 4090 (RunPod) | bfloat16 |
-| `google/gemma-4-27b-it` | ~27B | RTX 4090 (RunPod) | 4-bit |
+| Model | Parameters | Type | Hardware | Quantization |
+|-------|-----------|------|----------|-------------|
+| `google/gemma-4-E2B-it` | ~2B | Dense | RTX 4070 laptop | bfloat16 |
+| `google/gemma-4-E4B-it` | ~4B | Dense | RTX 4070 laptop | int8 |
+| `google/gemma-4-26B-A4B-it` | 26B total / 4B active | **MoE** | RTX 4090 (RunPod) | 4-bit |
+| `google/gemma-4-31B-it` | ~31B | Dense | RTX 4090 (RunPod) | 4-bit |
 
-Abliterated variants from [TrevorS/gemma-4-abliteration](https://huggingface.co/TrevorS) (biprojection + EGA method). Using public abliterated models mirrors the real-world threat model — these are the exact models available on HuggingFace today.
+Abliterated variants by [huihui-ai](https://huggingface.co/huihui-ai) using `remove-refusals-with-transformers`. Using public abliterated models mirrors the real-world threat model — these are the exact models available on HuggingFace today.
+
+> **Note on 26B-A4B:** This is a Mixture-of-Experts model — 26B total weights but only ~4B parameters active per token. An interesting question is whether MoE architecture affects the safety geometry differently from dense models of similar active size.
 
 ## Languages
 
@@ -135,14 +155,17 @@ Gemma 4 exhibits a **"delayed refusal" pattern** — the first 50–100 tokens m
 |-------|-------------|--------|
 | 0 | Theory: idea, novelty check, literature review (27 sources) | ✅ Complete |
 | 1 | Repo setup: scripts, configs, Docker | ✅ Complete |
-| 2 | Prompt dataset: WildGuardMix + translations | 🔄 In progress |
-| 3 | Local inference: E2B + E4B | ⬜ |
-| 4 | Cloud inference: 12B + 27B (RunPod) | ⬜ |
-| 5 | Mechanistic analysis: refusal directions, Silhouette Scores, PCA | ⬜ |
-| 6 | Statistical analysis + results | ⬜ |
-| 7 | Paper writing | ⬜ |
+| 2 | Prompt dataset: BeaverTails (50 prompts × 6 languages) | ✅ Complete |
+| 3a | Sanity check: E2B base vs abliterated (5 EN prompts) | ✅ **Results in [EXPERIMENTS.md](EXPERIMENTS.md)** |
+| 3b | Full local runs: E2B + E4B all languages | ⏸️ Paused — needs Anthropic API for judging |
+| 4 | Cloud inference: 26B-A4B + 31B (RunPod RTX 4090) | ⏸️ Paused — needs RunPod funds |
+| 5 | Mechanistic analysis: refusal directions, Silhouette Scores, PCA | ⏸️ Blocked on Phase 4 |
+| 6 | Statistical analysis + results | ⏸️ Blocked on Phase 5 |
+| 7 | Paper writing | ⏸️ Blocked on Phase 6 |
 
-See [ROADMAP.md](ROADMAP.md) for detailed steps within each phase.
+**The project is real, the pipeline works, and preliminary results confirm our hypothesis. We are paused at Phase 3b due to compute costs.**
+
+See [ROADMAP.md](ROADMAP.md) for detailed steps. See [BUDGET.md](BUDGET.md) for the funding request breakdown.
 
 ## References
 
