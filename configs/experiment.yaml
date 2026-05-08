@@ -5,20 +5,23 @@ seed: 42
 
 # ── Models ──────────────────────────────────────────────────────────────────
 # Verified HuggingFace IDs (April 2026)
-# Gemma 4 lineup: E2B (dense), E4B (dense), 26B-A4B (MoE, 4B active), 31B (dense)
+# Principal experiment: Dense only — E2B, E4B, 31B.
+# 26B-A4B (MoE) is kept here so `--size 26b` still works, but it is OUT OF
+# SCOPE for the principal experiment to avoid mixing the size axis with the
+# Dense/MoE architecture confounder. See FUTURE_WORK.md for the reactivation plan.
 # Abliterated models by huihui-ai using remove-refusals-with-transformers
 # Note: first 10 layers NOT abliterated — may have residual refusals (relevant to low-rank complication)
 models:
   base:
-    e2b: google/gemma-4-E2B-it       # ~2B dense | runs on laptop (bfloat16)
-    e4b: google/gemma-4-E4B-it       # ~4B dense | runs on laptop (int8)
-    26b: google/gemma-4-26B-A4B-it   # ~26B MoE, 4B active | RunPod
-    31b: google/gemma-4-31B-it       # ~31B dense | RunPod
+    e2b: google/gemma-4-E2B-it       # ~2B dense | runs on laptop (4-bit NF4)
+    e4b: google/gemma-4-E4B-it       # ~4B dense | runs on laptop (4-bit NF4)
+    26b: google/gemma-4-26B-A4B-it   # ~26B MoE, 4B active | RunPod  ← OUT OF SCOPE (see FUTURE_WORK.md)
+    31b: google/gemma-4-31B-it       # ~31B dense | RunPod (4-bit NF4)
 
   abliterated:
     e2b: huihui-ai/Huihui-gemma-4-E2B-it-abliterated    # verified ✓
     e4b: huihui-ai/Huihui-gemma-4-E4B-it-abliterated    # verified ✓
-    26b: huihui-ai/Huihui-gemma-4-26B-A4B-it-abliterated # verified ✓
+    26b: huihui-ai/Huihui-gemma-4-26B-A4B-it-abliterated # verified ✓  ← OUT OF SCOPE (see FUTURE_WORK.md)
     31b: huihui-ai/Huihui-gemma-4-31B-it-abliterated     # verified ✓
 
 # ── Hardware config per model size ──────────────────────────────────────────
@@ -51,7 +54,7 @@ hardware:
 dataset:
   source: PKU-Alignment/BeaverTails
   split: 30k_test         # 3,020 rows
-  n_prompts: 50           # sample size per language
+  n_prompts: 100          # 1/100 = 1% per-prompt resolution (was 50 = 2%)
   harm_filter: is_safe    # filter rows where is_safe == False
 
 # ── Languages ────────────────────────────────────────────────────────────────
@@ -60,6 +63,7 @@ languages:
   - es   # Spanish     (high resource)
   - zh   # Chinese     (high resource)
   - pt   # Portuguese  (high resource)
+  - de   # German      (high resource, germanic)
   - ar   # Arabic      (medium resource)
   - hi   # Hindi       (medium/low resource)
 

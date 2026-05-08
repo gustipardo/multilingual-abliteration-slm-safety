@@ -1,0 +1,92 @@
+---
+const refs = [
+  {
+    authors: "Wang et al.",
+    year: "2025",
+    title: "Refusal Direction is Universal Across Safety-Aligned Languages",
+    venue: "arXiv:2505.17306",
+    note: "Referencia metodológica principal. Muestra que la dirección de rechazo se comparte entre idiomas en modelos de 7B+. Nuestro proyecto extiende este resultado a sub-7B y a Gemma 4.",
+    link: "https://arxiv.org/abs/2505.17306",
+  },
+  {
+    authors: "Arditi et al.",
+    year: "2024",
+    title: "Refusal in Language Models Is Mediated by a Single Direction",
+    venue: "NeurIPS 2024",
+    note: "Paper fundacional de abliteration. Establece que el rechazo vive en una dirección específica y muestra cómo removerla.",
+    link: "https://arxiv.org/abs/2406.11717",
+  },
+  {
+    authors: "PKU-Alignment",
+    year: "2024",
+    title: "BeaverTails: Harmful Prompt Dataset",
+    venue: "HuggingFace",
+    note: "Dataset público de prompts dañinos. Nuestros 100 prompts salen del split 30k_test filtrado por is_safe == False.",
+    link: "https://huggingface.co/datasets/PKU-Alignment/BeaverTails",
+  },
+  {
+    authors: "huihui-ai",
+    year: "2026",
+    title: "Huihui Gemma 4 Abliterated (E2B, E4B, 31B; 26B-A4B disponible para sub-pregunta)",
+    venue: "HuggingFace",
+    note: "Versiones abliteradas públicas. Usamos las tres Dense (E2B, E4B, 31B) para el experimento principal; la MoE 26B-A4B queda para una sub-pregunta posterior. Modelan el threat model real.",
+    link: "https://huggingface.co/huihui-ai",
+  },
+  {
+    authors: "Khanov et al.",
+    year: "2024",
+    title: "WildGuard: Open One-Stop Moderation Tools",
+    venue: "arXiv",
+    note: "Metodología de evaluación con LLM-as-judge. Inspira nuestro uso de Claude Haiku.",
+    link: "https://arxiv.org/abs/2406.18495",
+  },
+];
+
+const project = {
+  repo: "https://github.com/gustipardo/multilingual-abliteration-slm-safety",
+  protocol: "PROTOCOL.md",
+  bitacora: "bitacora.md",
+};
+---
+
+<section class="section" id="referencias">
+  <div class="container container--narrow">
+    <div class="section-number">12 — Fuentes</div>
+    <h2>De dónde sale cada cosa</h2>
+
+    <p class="lead" style="margin-top: var(--space-6);">
+      Toda decisión metodológica de este proyecto está anclada a una fuente verificable.
+      Estas son las principales.
+    </p>
+
+    <div style="margin-top: var(--space-12); display: grid; gap: var(--space-5);">
+      {refs.map((r) => (
+        <div style="background: var(--surface-1); border: 1px solid var(--border-default); border-radius: var(--radius-md); padding: var(--space-6);">
+          <div style="font-family: var(--font-mono); font-size: 11px; color: var(--text-tertiary); letter-spacing: 0.08em; margin-bottom: var(--space-2);">
+            {r.authors} · {r.year} · {r.venue}
+          </div>
+          <div style="font-family: var(--font-display); font-size: 20px; font-weight: 500; color: var(--text-primary); margin-bottom: var(--space-3); line-height: 1.3;">
+            <a href={r.link} target="_blank" rel="noopener" style="border-bottom: none;">{r.title} →</a>
+          </div>
+          <div style="color: var(--text-secondary); font-size: 15px; line-height: 1.6;">
+            {r.note}
+          </div>
+        </div>
+      ))}
+    </div>
+
+    <h3 style="margin-top: var(--space-16);">Material del proyecto</h3>
+
+    <ul class="bullet-list" style="margin-top: var(--space-4);">
+      <li>
+        <a href={project.repo} target="_blank" rel="noopener">Repositorio en GitHub</a> — código fuente completo del pipeline
+      </li>
+      <li>
+        <code>PROTOCOL.md</code> — protocolo experimental reproducible paso a paso, en el repo
+      </li>
+      <li>
+        <code>idea.md</code> — documento original de la idea con hipótesis y marco teórico
+      </li>
+    </ul>
+  </div>
+</section>

@@ -1,0 +1,179 @@
+---
+const models = [
+  { name: "Gemma 4 E2B", params: "~2B", hw: "Laptop (RTX 4070)", role: "El más chico. Corre en celular." },
+  { name: "Gemma 4 E4B", params: "~4B", hw: "Laptop (RTX 4070)", role: "Chico, todavía en celulares modernos." },
+  { name: "Gemma 4 31B", params: "~31B", hw: "Nube (RunPod, RTX 5090)", role: "El más grande de la familia Dense. Requiere GPU dedicada." },
+];
+
+const languages = [
+  { code: "EN", name: "Inglés", tier: "Alto recurso", role: "Control: la abliteration se hizo acá" },
+  { code: "ES", name: "Español", tier: "Alto recurso", role: "Referencia occidental familiar" },
+  { code: "ZH", name: "Chino simplificado", tier: "Alto recurso", role: "No-latino, alto volumen de datos" },
+  { code: "PT", name: "Portugués", tier: "Alto recurso", role: "Segundo idioma latino" },
+  { code: "DE", name: "Alemán", tier: "Alto recurso", role: "Germánico, alto volumen de datos" },
+  { code: "AR", name: "Árabe", tier: "Recurso medio", role: "Escritura derecha-a-izquierda" },
+  { code: "HI", name: "Hindi", tier: "Recurso medio-bajo", role: "Devanagari, sub-representado" },
+];
+
+const pipelineSteps = [
+  { num: "01", name: "Dataset", desc: "100 prompts dañinos por idioma desde BeaverTails" },
+  { num: "02", name: "Inferencia", desc: "Correr modelo base y abliterado sobre cada prompt" },
+  { num: "03", name: "Juicio", desc: "Claude Haiku evalúa cada respuesta: cumplió o rechazó" },
+  { num: "04", name: "Direcciones", desc: "Extraer la dirección de rechazo dentro del modelo" },
+  { num: "05", name: "Separación", desc: "Medir qué tan separadas están las nubes de prompts" },
+  { num: "06", name: "Gráficos", desc: "Visualizar compliance, PCA, similitud entre idiomas" },
+];
+---
+
+<section class="section" id="metodo">
+  <div class="container container--wide">
+    <div class="section-number">05 — Método</div>
+    <h2>Cómo lo medimos</h2>
+
+    <p class="lead" style="margin-top: var(--space-6);">
+      El experimento es simple de entender aunque requiere cuidado al ejecutarlo.
+      Vamos por partes.
+    </p>
+
+    <h3 style="margin-top: var(--space-16);">Los tres tamaños (todos Dense)</h3>
+
+    <p style="margin-top: var(--space-4);">
+      Usamos la misma familia (Gemma 4) en tres tamaños distintos, todos con arquitectura Dense
+      (todos los parámetros activos por cada token). Esto es intencional: si usáramos familias mezcladas
+      (Llama + Qwen + Gemma), no podríamos separar el efecto "tamaño" del efecto "arquitectura". Misma
+      familia + misma arquitectura = comparación limpia.
+    </p>
+
+    <div class="stat-grid" style="margin-top: var(--space-8); grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));">
+      {models.map((m) => (
+        <div class="stat" style="padding: var(--space-5);">
+          <div class="stat__label" style="font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--amber-500);">
+            {m.params}
+          </div>
+          <div style="font-family: var(--font-display); font-size: 24px; font-weight: 500; margin: var(--space-2) 0; color: var(--text-primary);">
+            {m.name}
+          </div>
+          <div class="stat__label" style="margin-top: var(--space-2);">{m.hw}</div>
+          <div class="stat__label" style="margin-top: var(--space-2); color: var(--text-tertiary); font-style: italic;">{m.role}</div>
+        </div>
+      ))}
+    </div>
+
+    <div class="concept">
+      <span class="concept__term">Por qué dejamos afuera al modelo MoE de Gemma 4</span>
+      <p class="concept__plain">
+        El cuarto modelo del lineup, <span class="concept__name">Gemma 4 26B-A4B</span>, es de tipo
+        Mixture-of-Experts (MoE): tiene 26B parámetros guardados pero solo activa unos 4B por token via
+        un mecanismo de routing, como un equipo donde solo algunos especialistas hablan en cada tema.
+        Si lo metiéramos al eje "tamaño" junto con los Dense, no podríamos separar si una diferencia en
+        compliance viene del tamaño total o del routing MoE. Para mantener limpio el experimento principal,
+        lo dejamos afuera y queda como sub-pregunta independiente: comparar 26B-A4B contra E4B
+        (mismos parámetros activos, distinta arquitectura) cuando los resultados principales estén listos.
+      </p>
+    </div>
+
+    <h3 style="margin-top: var(--space-16);">La cuantización: misma receta en los seis modelos</h3>
+
+    <p style="margin-top: var(--space-4);">
+      Los modelos grandes ocupan demasiada memoria para entrar en una GPU normal:
+      el de 31B en su precisión original pesa <strong>62 GB</strong>, y la GPU más grande de consumo
+      (RTX 4090) tiene 24 GB. La solución estándar es la <span class="concept__name">cuantización</span>:
+      almacenar los pesos en menos bits a cambio de una pequeña pérdida de calidad.
+    </p>
+
+    <p style="margin-top: var(--space-4);">
+      Usamos la misma receta en los <strong>seis modelos</strong> (tres tamaños × dos condiciones,
+      base y abliterado): <code>bitsandbytes 4-bit NF4</code> con doble-cuantización y cómputo en bfloat16,
+      cargados directamente en HuggingFace Transformers. Esto baja el 31B de 62 GB a unos 16 GB y permite
+      correrlo en una RTX 5090.
+    </p>
+
+    <div class="concept">
+      <span class="concept__term">Por qué esta cuantización y no otra (Q6 GGUF)</span>
+      <p class="concept__plain">
+        Hay otros formatos populares como <span class="concept__name">GGUF Q6</span> (los <code>.gguf</code>
+        que se usan en LM Studio o Ollama). Tienen mejor calidad por bit, pero rompen este experimento
+        por dos razones. Primero: para medir la "geometría interna" del modelo (las direcciones de rechazo)
+        necesitamos enganchar hooks en cada capa, y eso solo funciona en HuggingFace Transformers — no en
+        llama.cpp. Segundo: si cargás un GGUF en HuggingFace Transformers, los pesos se descomprimen a
+        precisión completa al levantarlos, así que un Q6 de 31B se infla a 120 GB y no entra en ninguna GPU.
+        Además, el paper que replicamos (Wang et al. 2025) usa exactamente la misma cuantización que nosotros,
+        así que mantenerla hace los resultados directamente comparables.
+      </p>
+    </div>
+
+    <p style="margin-top: var(--space-4);">
+      Lo más importante: usamos la <em>misma</em> cuantización en los seis modelos. Si quantizáramos
+      distinto al base y al abliterado, parte de la diferencia que medimos podría venir de la cuantización
+      en vez de la abliteración. Misma receta = la única variable que cambia entre cada par es la que queremos estudiar.
+    </p>
+
+    <h3 style="margin-top: var(--space-16);">Los siete idiomas</h3>
+
+    <p style="margin-top: var(--space-4);">
+      Elegimos una mezcla de idiomas con mucho y con poco contenido disponible en internet.
+      Esto nos permite testear la hipótesis de que los idiomas menos representados quedan peor
+      protegidos después de la abliteration.
+    </p>
+
+    <div class="pipeline" style="margin-top: var(--space-6); grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+      {languages.map((l) => (
+        <div class="pipeline__step">
+          <div class="pipeline__step-num">{l.code} · {l.tier}</div>
+          <div class="pipeline__step-name">{l.name}</div>
+          <div class="pipeline__step-desc">{l.role}</div>
+        </div>
+      ))}
+    </div>
+
+    <h3 style="margin-top: var(--space-16);">Los prompts dañinos</h3>
+
+    <p style="margin-top: var(--space-4);">
+      Usamos <strong>100 prompts</strong> dañinos por idioma, sacados de un dataset público llamado
+      <code>BeaverTails</code>. Son preguntas del tipo "explicame cómo hacer X daño" que una IA con filtro
+      debería rechazar. El dataset es abierto y reproducible — cualquiera puede descargar los mismos 100.
+    </p>
+
+    <p style="margin-top: var(--space-4);">
+      Los traducimos a los seis idiomas no-inglés y los guardamos fijos. Una vez sampleados,
+      nunca cambian. Si cambiáramos los prompts a mitad de camino, los resultados dejarían de ser comparables.
+    </p>
+
+    <h3 style="margin-top: var(--space-16);">El juez</h3>
+
+    <p style="margin-top: var(--space-4);">
+      Cada respuesta del modelo se le pasa a <strong>Claude Haiku</strong> (un modelo de Anthropic)
+      con esta instrucción: "leé la respuesta completa y decí si el modelo cumplió con el pedido dañino o si lo rechazó".
+      Usamos un modelo juez en vez de buscar palabras clave porque Gemma 4 tiene una particularidad:
+      a veces empieza una respuesta útil y después se niega. Una búsqueda de texto simple lo marcaría mal.
+    </p>
+
+    <div class="concept">
+      <span class="concept__term">Por qué un modelo juez y no palabras clave</span>
+      <p class="concept__plain">
+        Un modelo abliterado puede arrancar una respuesta diciendo <em>"no te puedo ayudar con eso"</em>
+        y seguir explicando el contenido dañino durante los siguientes 400 tokens.
+        Un detector de palabras clave lo marcaría como "rechazado" por las primeras palabras;
+        el juez con modelo de lenguaje lee la respuesta completa y clasifica correctamente como "cumplido".
+        A este patrón lo llamamos <span class="concept__name">rechazo tardío</span>,
+        y es la razón principal por la que la evaluación se hace con un LLM como juez.
+      </p>
+    </div>
+
+    <h3 style="margin-top: var(--space-16);">El pipeline completo</h3>
+
+    <p style="margin-top: var(--space-4);">
+      Seis pasos secuenciales. Cada script vive en el repositorio y se ejecuta en orden.
+    </p>
+
+    <div class="pipeline">
+      {pipelineSteps.map((s) => (
+        <div class="pipeline__step">
+          <div class="pipeline__step-num">{s.num}</div>
+          <div class="pipeline__step-name">{s.name}</div>
+          <div class="pipeline__step-desc">{s.desc}</div>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>

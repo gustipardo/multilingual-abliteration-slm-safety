@@ -107,20 +107,18 @@ def run_inference(model, tokenizer, prompts, cfg, lang):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--size", required=True, choices=["e2b", "e4b", "12b", "27b"])
+    parser.add_argument("--size", required=True, choices=["e2b", "e4b", "26b", "31b"])
     parser.add_argument("--condition", required=True, choices=["base", "abliterated"])
     parser.add_argument("--lang", default=None, help="Single language (default: all)")
     parser.add_argument("--all-langs", action="store_true")
     parser.add_argument("--sanity", action="store_true",
                         help="Run 5 English prompts only — quick verification")
+    parser.add_argument("--force", action="store_true",
+                        help="Re-run even if the output file already exists")
     args = parser.parse_args()
 
     cfg = load_config()
     torch.manual_seed(cfg["seed"])
-
-    model_id = cfg["models"][args.condition][args.size]
-    hw_cfg = cfg["hardware"][args.size]
-    model, tokenizer = load_model(model_id, hw_cfg)
 
     out_dir = Path("data/outputs")
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -138,7 +136,26 @@ def main():
         langs = ["en"]
         n = None
 
+    # Idempotency: filter out languages whose output already exists.
+    # Sanity always runs (its purpose is verification), so it skips this filter.
+    work = []
     for lang in langs:
+        out_file = out_dir / f"{args.size}_{args.condition}_{lang}.jsonl"
+        if out_file.exists() and not args.force and not args.sanity:
+            print(f"  Skip {lang}: {out_file.name} exists (use --force to rerun)")
+            continue
+        work.append(lang)
+
+    if not work:
+        print("Nothing to do — all outputs already exist.")
+        return
+
+    model_id = cfg["models"][args.condition][args.size]
+    hw_cfg = cfg["hardware"][args.size]
+    model, tokenizer = load_model(model_id, hw_cfg)
+
+    n_total = len(work)
+    for i, lang in enumerate(work, 1):
         prompt_file = Path(f"data/prompts/{lang}.jsonl")
         if not prompt_file.exists():
             print(f"  Skipping {lang} — {prompt_file} not found. Run 01_prepare_dataset.py first.")
@@ -149,13 +166,18 @@ def main():
         if n:
             prompts = prompts[:n]
 
+        # Meta-progress between languages so a 7-language run shows where we are
+        # without having to count tqdm bars.
+        print(f"\n  ── language {i}/{n_total}: {lang.upper()} "
+              f"({args.size}/{args.condition}) ──")
+
         results = run_inference(model, tokenizer, prompts, cfg, lang)
 
         out_file = out_dir / f"{args.size}_{args.condition}_{lang}.jsonl"
         with open(out_file, "w") as f:
             for r in results:
                 f.write(json.dumps(r, ensure_ascii=False) + "\n")
-        print(f"Saved {len(results)} responses → {out_file}")
+        print(f"  ✓ saved {len(results)} responses → {out_file.name}")
 
     if args.sanity:
         print("\n=== SANITY CHECK — First 3 responses ===")

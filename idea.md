@@ -23,25 +23,26 @@ This connects directly to the AI safety democratization agenda: safety training 
 ## Approach
 
 ### Models
-Use publicly available abliterated models (real-world threat model, not lab conditions):
+Use publicly available abliterated models (real-world threat model, not lab conditions). **Architecture fixed = Dense** to avoid mixing the size effect with an architecture effect:
 
-| Model | Source | Runs on |
-|-------|--------|---------|
-| Gemma 4 E2B abliterated | HuggingFace | Local CPU/laptop |
-| Gemma 4 E4B abliterated | HuggingFace | Local GPU |
-| Gemma 4 12B abliterated | HuggingFace | Local 4090 or RunPod |
-| Gemma 4 27B abliterated | HuggingFace | Rented 4090 (RunPod) |
+| Model | Architecture | Source | Runs on |
+|-------|--------------|--------|---------|
+| Gemma 4 E2B (base + abliterated) | Dense | HuggingFace (`google/...`, `huihui-ai/...`) | Laptop GPU |
+| Gemma 4 E4B (base + abliterated) | Dense | HuggingFace | Laptop GPU |
+| Gemma 4 31B (base + abliterated) | Dense | HuggingFace | RunPod RTX 5090 |
 
-Run non-abliterated versions of each as baseline (pre vs post abliteration comparison).
+Run non-abliterated versions of each as baseline (pre vs post abliteration comparison). All loaded with the same quantization config (bnb 4-bit NF4 + DQ + bf16 compute).
 
-**Verify** that abliteration methodology is consistent across sizes (TrevorS uses biprojection + EGA). If different tools were used for different sizes, disclose as confound.
+**Out of principal scope:** Gemma 4 26B-A4B is a Mixture-of-Experts model. Including it on the size axis would conflate "size" with "Dense vs MoE". Treated as a separate sub-question (26B-A4B vs E4B, matched on active parameters) — see `FUTURE_WORK.md`.
+
+**Verify** that abliteration methodology is consistent across sizes (huihui-ai uses `remove-refusals-with-transformers` for all 3). If different tools were used for different sizes, disclose as confound.
 
 ### Languages
-English, Spanish, Chinese, Arabic, Hindi, Portuguese (6 languages, mix of high/low resource).
+English, Spanish, Chinese, Portuguese, German, Arabic, Hindi (7 languages, mix of high/medium resource).
 
 ### Prompts
-~50 harmful prompts per language (translated), following WildGuard methodology.  
-Total evaluations: ~50 prompts × 6 languages × 4 model sizes × 2 conditions (base + abliterated) = ~2,400 evaluations.
+100 harmful prompts per language from `PKU-Alignment/BeaverTails` (split `30k_test`, filtered `is_safe=False`, seed=42), translated.
+Total evaluations: 100 prompts × 7 languages × 3 model sizes × 2 conditions = **4,200 evaluations**.
 
 ### Metrics
 - **Compliance rate** per language per model size, pre and post abliteration
@@ -58,10 +59,10 @@ Total evaluations: ~50 prompts × 6 languages × 4 model sizes × 2 conditions (
 
 ## Hypotheses
 
-1. English abliteration increases compliance rates across all 6 languages for all model sizes (replicating Wang et al. universality finding, now in Gemma 4)
+1. English abliteration increases compliance rates across all 7 languages for all 3 model sizes (replicating Wang et al. universality finding, now in Gemma 4 Dense sub-7B)
 2. Silhouette Scores decrease as model size decreases — smaller models have worse harmful/harmless separation at baseline
 3. Post-abliteration compliance rates are higher in smaller models than larger models (smaller = more vulnerable)
-4. Low-resource languages (Arabic, Hindi) show higher compliance rates post-abliteration than high-resource languages (Spanish, Portuguese)
+4. Medium-resource languages (Arabic, Hindi) show higher compliance rates post-abliteration than high-resource languages (Spanish, Portuguese)
 
 ---
 
@@ -70,8 +71,8 @@ Total evaluations: ~50 prompts × 6 languages × 4 model sizes × 2 conditions (
 | Dimension | Score | Reasoning |
 |-----------|-------|-----------|
 | Theory of Impact | 5/5 | Direct empirical argument for policy: if accessible = more vulnerable, this argues for multilingual safety training as SLM priority |
-| Accessible Complexity | 5/5 | Abliterated models already public. Small models run locally. Large model on rented 4090 via RunPod. |
-| Narrow Scope | 4/5 | ~2,400 evaluations, well-defined done condition: compliance table + Silhouette Scores across sizes and languages |
+| Accessible Complexity | 5/5 | Abliterated models already public. Small models run locally. Large model on rented RTX 5090 via RunPod. |
+| Narrow Scope | 5/5 | 4,200 evaluations, 3 Dense sizes, well-defined done condition: compliance table + Silhouette Scores across sizes and languages. MoE explicitly deferred to keep scope reduced. |
 | Novelty | 4/5 | Wang et al. covers cross-lingual abliteration in larger models (7B+) but not within-family size scaling, not Gemma 4 (released after their paper), not the democratization framing |
 | **Total** | **18/20** | |
 
@@ -96,11 +97,11 @@ Gemma 4 exhibits a "delayed refusal" pattern: models generate 50-100 helpful tok
 
 ## Suggested First Experiments
 
-1. Download Gemma 4 E4B (base + abliterated), run 50 EN harmful prompts → confirm abliteration works, calibrate LLM-as-judge
-2. Extend to 6 languages for E4B — measure compliance rate delta
-3. Replicate Wang et al. Silhouette Score visualization for E4B
-4. Scale up to E2B and 12B, compare Silhouette Scores across sizes
-5. Rent 4090 on RunPod, run 27B variant
+1. Download Gemma 4 E2B (base + abliterated), run 5 EN harmful prompts → confirm abliteration works, calibrate LLM-as-judge ✅ done
+2. Extend to 7 languages × 100 prompts for E2B → first compliance numbers ✅ done (May 2026)
+3. Run E4B locally (same matrix)
+4. Rent RTX 5090 on RunPod, run 31B variant
+5. Replicate Wang et al. Silhouette Score visualization across the 3 Dense sizes
 
 ---
 
@@ -108,4 +109,4 @@ Gemma 4 exhibits a "delayed refusal" pattern: models generate 50-100 helpful tok
 
 - `/novelty-check` — deeper literature search before committing
 - `/research-topic` — map Gemma 4 safety literature and SLM safety landscape
-- `/runpodctl` — set up RunPod pod for 27B evaluation
+- `/runpodctl` — set up RunPod pod for 31B Dense evaluation

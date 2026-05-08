@@ -1,0 +1,52 @@
+---
+---
+
+<section class="section" id="hipotesis">
+  <div class="container container--narrow">
+    <div class="section-number">04 — Hipótesis</div>
+    <h2>Las cuatro apuestas</h2>
+
+    <p class="lead" style="margin-top: var(--space-6);">
+      Cada una de estas afirmaciones se puede confirmar o rechazar con los datos.
+      No es un listado ambiguo: son predicciones concretas.
+    </p>
+
+    <ol class="list-numbered" style="margin-top: var(--space-10);">
+      <li>
+        <h4>Romper el filtro en inglés rompe también el filtro en los otros seis idiomas.</h4>
+        <p class="muted">
+          Aunque la técnica use solo ejemplos en inglés, la dirección matemática que se remueve
+          del modelo está compartida entre idiomas. Esperamos ver más cumplimiento de pedidos dañinos
+          en español, chino, árabe, hindi y portugués después de la abliteration.
+          (Replicación de Wang et al. 2025 extendida a Gemma 4.)
+        </p>
+      </li>
+      <li>
+        <h4>La separación entre prompts dañinos y prompts inofensivos es peor en modelos chicos.</h4>
+        <p class="muted">
+          Cuando se analiza el modelo internamente, los pedidos dañinos y los inofensivos
+          aparecen agrupados en dos "nubes" dentro del espacio matemático del modelo.
+          En modelos grandes, esas nubes están bien separadas. La apuesta es que en los modelos chicos
+          las nubes están más mezcladas — y por eso cuesta menos romperles la seguridad.
+        </p>
+      </li>
+      <li>
+        <h4>El cumplimiento de pedidos dañinos después de la abliteration es mayor en modelos chicos.</h4>
+        <p class="muted">
+          Esta es la hipótesis central del <em>democratization paradox</em>. Si el modelo de 2B parámetros
+          cumple el 90% de los pedidos dañinos después de la abliteration y el modelo de 31B cumple solo el 40%,
+          tenemos evidencia fuerte. Si no hay diferencia entre tamaños, la hipótesis se cae.
+        </p>
+      </li>
+      <li>
+        <h4>Los idiomas con menos recursos (árabe, hindi) quedan peor protegidos que los de alto recurso (español, portugués).</h4>
+        <p class="muted">
+          Los modelos se entrenan con más datos en idiomas "populares" en internet. Idiomas con menos
+          presencia online heredan un filtro de seguridad más débil desde el arranque,
+          y la abliteration los expone más. Es una hipótesis separada que puede confirmarse o fallarse
+          independientemente de la #3.
+        </p>
+      </li>
+    </ol>
+  </div>
+</section>

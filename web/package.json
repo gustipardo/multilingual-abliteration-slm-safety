@@ -1,0 +1,17 @@
+{
+  "name": "abliteration-web",
+  "type": "module",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "npm run sync:blog && astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "sync:blog": "node scripts/sync-blog.mjs",
+    "prebuild": "npm run sync:blog"
+  },
+  "dependencies": {
+    "astro": "^5.0.0"
+  }
+}

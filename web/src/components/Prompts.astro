@@ -1,0 +1,161 @@
+---
+// Tabla de los 100 prompts (×7 idiomas) que entran al pipeline.
+// Lee data/prompts/{lang}.jsonl al hacer build.
+import fs from "node:fs";
+import path from "node:path";
+
+type Lang = "en" | "es" | "zh" | "pt" | "de" | "ar" | "hi";
+const langs: Lang[] = ["en", "es", "zh", "pt", "de", "ar", "hi"];
+const langLabels: Record<Lang, string> = {
+  en: "EN — English",
+  es: "ES — Español",
+  zh: "ZH — 中文",
+  pt: "PT — Português",
+  de: "DE — Deutsch",
+  ar: "AR — العربية",
+  hi: "HI — हिन्दी",
+};
+
+type Row = { id: string; category: string; text: string };
+const promptsByLang: Record<Lang, Row[]> = { en: [], es: [], zh: [], pt: [], de: [], ar: [], hi: [] };
+
+const promptsDir = path.resolve(process.cwd(), "../data/prompts");
+let totalRows = 0;
+
+for (const lang of langs) {
+  const file = path.join(promptsDir, `${lang}.jsonl`);
+  if (!fs.existsSync(file)) continue;
+  const lines = fs.readFileSync(file, "utf-8").trim().split(/\r?\n/);
+  for (const line of lines) {
+    if (!line.trim()) continue;
+    try {
+      const obj = JSON.parse(line);
+      const text = obj[`prompt_${lang}`] ?? obj.prompt_en ?? "";
+      promptsByLang[lang].push({
+        id: String(obj.id),
+        category: String(obj.category ?? ""),
+        text: String(text),
+      });
+      totalRows++;
+    } catch { /* skip malformed line */ }
+  }
+}
+
+const enCount = promptsByLang.en.length;
+---
+
+<section class="section" id="prompts">
+  <div class="container container--wide">
+    <div class="section-number">10 — Los prompts</div>
+    <h2>Los 100 pedidos dañinos, en siete idiomas</h2>
+
+    <p class="lead" style="margin-top: var(--space-6);">
+      Estos son los prompts que entran al pipeline. Salen de
+      <span class="concept__name">PKU-Alignment/BeaverTails</span> (split <code>30k_test</code>),
+      filtrados por <code>is_safe == False</code> y sampleados con <code>seed=42</code>.
+      Los 100 prompts en inglés son la fuente; las versiones en otros idiomas son traducciones
+      pareadas (mismo <code>id</code> = mismo prompt). Con 100 prompts cada error se cuenta como
+      1% (antes 50 prompts ⇒ 2%): mayor sensibilidad para detectar diferencias chicas.
+    </p>
+
+    <p class="muted" style="margin-top: var(--space-6); font-family: var(--font-mono); font-size: 12px;">
+      ⚠️ Contenido sensible — el dataset está diseñado para evaluar rechazos de modelos de IA.
+      Todos los prompts son ofensivos o piden información dañina <em>a propósito</em>.
+    </p>
+
+    <p class="muted" style="margin-top: var(--space-4); font-family: var(--font-mono); font-size: 12px;">
+      {totalRows} filas cargadas · {enCount} prompts × {langs.length} idiomas
+    </p>
+
+    <div class="prompts-controls" style="margin-top: var(--space-8);">
+      <div class="prompts-tabs" role="tablist" aria-label="Idioma de los prompts">
+        {langs.map((l, i) => (
+          <button
+            type="button"
+            class={`prompts-tab${i === 0 ? " prompts-tab--active" : ""}`}
+            role="tab"
+            aria-selected={i === 0 ? "true" : "false"}
+            data-lang={l}
+          >
+            {langLabels[l]}
+          </button>
+        ))}
+      </div>
+
+      <input
+        type="search"
+        id="prompts-search"
+        class="prompts-search"
+        placeholder="Buscar por id, categoría o texto…"
+        aria-label="Buscar prompts"
+      />
+    </div>
+
+    <div class="prompts-wrap" style="margin-top: var(--space-6);">
+      {langs.map((l, i) => (
+        <div
+          class={`prompts-panel${i === 0 ? " prompts-panel--active" : ""}`}
+          data-lang={l}
+          role="tabpanel"
+          aria-hidden={i === 0 ? "false" : "true"}
+          dir={l === "ar" ? "rtl" : "ltr"}
+        >
+          <table class="prompts-table">
+            <thead>
+              <tr>
+                <th class="prompts-th--id">ID</th>
+                <th class="prompts-th--cat">Categoría</th>
+                <th>Prompt ({l.toUpperCase()})</th>
+              </tr>
+            </thead>
+            <tbody>
+              {promptsByLang[l].map((row) => (
+                <tr class="prompts-row" data-search={`${row.id} ${row.category} ${row.text}`.toLowerCase()}>
+                  <td class="prompts-td--id">{row.id}</td>
+                  <td class="prompts-td--cat">
+                    {row.category.split(",").map((c) => (
+                      <span class="prompts-tag">{c.trim()}</span>
+                    ))}
+                  </td>
+                  <td class="prompts-td--text">{row.text}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<script>
+  // Tab switching
+  const tabs = document.querySelectorAll<HTMLButtonElement>(".prompts-tab");
+  const panels = document.querySelectorAll<HTMLDivElement>(".prompts-panel");
+
+  tabs.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const lang = btn.dataset.lang;
+      tabs.forEach((b) => {
+        const active = b.dataset.lang === lang;
+        b.classList.toggle("prompts-tab--active", active);
+        b.setAttribute("aria-selected", active ? "true" : "false");
+      });
+      panels.forEach((p) => {
+        const active = p.dataset.lang === lang;
+        p.classList.toggle("prompts-panel--active", active);
+        p.setAttribute("aria-hidden", active ? "false" : "true");
+      });
+    });
+  });
+
+  // Search filter (applies to active panel only)
+  const search = document.getElementById("prompts-search") as HTMLInputElement | null;
+  search?.addEventListener("input", () => {
+    const q = search.value.trim().toLowerCase();
+    document.querySelectorAll<HTMLTableRowElement>(".prompts-row").forEach((row) => {
+      const match = !q || (row.dataset.search ?? "").includes(q);
+      row.style.display = match ? "" : "none";
+    });
+  });
+</script>

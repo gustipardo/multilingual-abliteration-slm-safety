@@ -1,0 +1,60 @@
+---
+---
+
+<section class="section" id="pregunta">
+  <div class="container container--narrow">
+    <div class="section-number">03 — La pregunta</div>
+    <h2>Qué estamos tratando de averiguar</h2>
+
+    <p class="lead" style="margin-top: var(--space-6);">
+      El filtro de seguridad se rompe en inglés. ¿Pero qué pasa con los otros idiomas?
+      ¿Y qué pasa según el tamaño del modelo?
+    </p>
+
+    <div class="callout">
+      <span class="callout__label" style="color: var(--amber-500);">Pregunta central</span>
+      <p style="font-family: var(--font-display); font-size: 22px; line-height: 1.4; color: var(--text-primary); font-style: italic;">
+        Dentro de la familia Gemma 4, ¿la ruptura del filtro de seguridad multilingüe es peor
+        a medida que el modelo es más chico?
+      </p>
+    </div>
+
+    <h3 style="margin-top: var(--space-16);">La idea detrás</h3>
+
+    <p style="margin-top: var(--space-4);">
+      Hay una intuición incómoda que sostiene este proyecto.
+      Los modelos más chicos son los más accesibles: corren en un celular común, sin internet,
+      en cualquier rincón del mundo. Es <em>buena noticia</em> — democratiza el acceso a la IA.
+    </p>
+
+    <p style="margin-top: var(--space-4);">
+      Pero si justamente esos modelos chicos son los que peor resisten la abliteration, y
+      si además el filtro colapsa más en idiomas con menos recursos (árabe, hindi), entonces
+      los modelos que mejor sirven a las comunidades más vulnerables son exactamente los
+      que peor las protegen cuando alguien decide romperlos. A eso es a lo que apunta esta investigación.
+    </p>
+
+    <div class="concept">
+      <span class="concept__term">Concepto clave</span>
+      <p class="concept__plain">
+        La idea de que "los más accesibles son los más peligrosos una vez rotos" —
+        <span class="concept__name">democratization safety paradox</span> —
+        es el marco central del paper.
+        Si se confirma, la implicación práctica es fuerte: no alcanza con entrenar seguridad en inglés
+        y después escalar hacia abajo. La seguridad multilingüe tiene que ser una prioridad desde el inicio,
+        especialmente en los modelos chicos.
+      </p>
+    </div>
+
+    <div class="callout callout--author">
+      <span class="callout__label">Voz del autor</span>
+      <p style="font-style: italic;">
+        Mi apuesta personal es que el paradox se va a confirmar, pero no por los motivos obvios.
+        Los modelos chicos no son "peores" — son diferentes. Tienen menos capacidad para guardar
+        un filtro de seguridad robusto en muchos idiomas a la vez. Cuando les sacás el filtro en inglés,
+        lo poco que tenían en los otros idiomas también se va. Es una hipótesis falsable y este
+        estudio está diseñado para ponerla a prueba.
+      </p>
+    </div>
+  </div>
+</section>

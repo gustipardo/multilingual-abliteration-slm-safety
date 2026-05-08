@@ -32,3 +32,19 @@ context.txt
 
 # Keep prompts in git (they're just text, ~10KB)
 !data/prompts/
+
+# Filesystem journal artifacts (NTFS cross-mount)
+*.ntfs-3g-*
+
+# Local data archives (snapshots, kept locally, not derived from git)
+data/_archive_*/
+data/_runpod_e2b_*/
+data/outputs/_sanity_backup/
+
+# Run logs (large, regenerable)
+logs/
+
+# Astro build artefacts
+web/node_modules/
+web/dist/
+web/.astro/

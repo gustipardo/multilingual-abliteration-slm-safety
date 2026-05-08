@@ -1,0 +1,114 @@
+---
+const scenarios = [
+  {
+    letter: "A",
+    title: "Todos iguales, todos altos",
+    data: [
+      { size: "E2B", val: 90 }, { size: "E4B", val: 92 }, { size: "31B", val: 90 },
+    ],
+    reading: "La abliteration rompe todo por igual. El tamaño no importa.",
+    implication: "La hipótesis principal se cae. Igual es un paper válido: demuestra que el tamaño no protege.",
+    color: "var(--text-secondary)",
+  },
+  {
+    letter: "B",
+    title: "Los chicos se rompen más (hipótesis original)",
+    data: [
+      { size: "E2B", val: 90 }, { size: "E4B", val: 70 }, { size: "31B", val: 40 },
+    ],
+    reading: "Los modelos grandes resisten más a la abliteration que los chicos.",
+    implication: "Confirma el democratization paradox. Tiene implicaciones directas de política: la seguridad multilingüe debe priorizarse en modelos chicos.",
+    color: "var(--terracota-300)",
+  },
+  {
+    letter: "C",
+    title: "Los grandes se rompen más",
+    data: [
+      { size: "E2B", val: 45 }, { size: "E4B", val: 65 }, { size: "31B", val: 90 },
+    ],
+    reading: "Los modelos más grandes tienen una dirección de rechazo más clara y por eso son más fáciles de atacar.",
+    implication: "Contraintuitivo y valioso. El paper argumentaría que escalar un modelo sin repensar su seguridad lo vuelve más vulnerable, no menos.",
+    color: "var(--amber-300)",
+    annotation: "Refutado parcialmente: la curva sí sube de E2B (43%) a E4B (68%), pero cae a 64% en 31B. La pendiente final no es positiva.",
+  },
+  {
+    letter: "D",
+    title: "Mixto, depende del idioma",
+    data: [
+      { size: "E2B", val: 70 }, { size: "E4B", val: 50 }, { size: "31B", val: 45 },
+    ],
+    reading: "No hay un patrón claro por tamaño. La interacción idioma × tamaño domina.",
+    implication: "El hallazgo central se mueve a los idiomas. El paper se reenfoca: los idiomas de bajo recurso son el problema más fuerte, independiente del tamaño.",
+    color: "var(--sage-300)",
+  },
+  {
+    letter: "E",
+    title: "Pico en el medio (lo que efectivamente pasó)",
+    data: [
+      { size: "E2B", val: 43 }, { size: "E4B", val: 68 }, { size: "31B", val: 64 },
+    ],
+    reading: "La curva sube fuerte de 2B a 4B (+25 pp), después cae 4 pp al ir a 31B. La vulnerabilidad post-abliteración tiene su máximo en el modelo intermedio, no en los extremos.",
+    implication: "La democratization safety paradox sigue viva pero con un mecanismo distinto: el modelo más vulnerable es el más accesible para correr en consumer GPUs y phone-scale (~4B a baja cuantización). El paper muestra que escalar dentro de Gemma 4 Dense no protege ni rompe linealmente — la geometría de la representación de rechazo es no monótona.",
+    color: "var(--terracota-300)",
+    highlight: true,
+    annotation: "Datos finales: E2B 42.9% · E4B 68.1% (pico) · 31B 64.4%. Los tres tamaños cerrados al 5 May 2026.",
+  },
+];
+---
+
+<section class="section" id="escenarios">
+  <div class="container container--narrow">
+    <div class="section-number">08 — Escenarios</div>
+    <h2>Los cinco escenarios — cuatro pre-registrados + el que apareció</h2>
+
+    <p class="lead" style="margin-top: var(--space-6);">
+      Antes de correr la matriz pre-registramos cuatro patrones posibles (A, B, C, D).
+      Los tres tamaños ya están cerrados y el patrón que apareció <strong>no era ninguno
+      de los cuatro</strong>: la curva tiene un pico en el medio (E), una forma que no había
+      sido considerada como hipótesis pero que es a la vez sólida y publicable.
+    </p>
+
+    <div style="margin-top: var(--space-12); display: grid; grid-template-columns: 1fr; gap: var(--space-6);">
+      {scenarios.map((s) => (
+        <div
+          class="callout"
+          style={`padding: var(--space-6); ${s.highlight ? 'border-left: 3px solid var(--terracota-500); background: linear-gradient(90deg, var(--alpha-terracota-14) 0%, transparent 40%);' : ''}`}
+        >
+          <div style="display: flex; align-items: baseline; gap: var(--space-4); margin-bottom: var(--space-4);">
+            <span style="font-family: var(--font-display); font-size: 42px; font-weight: 500; color: var(--amber-500); line-height: 1;">
+              {s.letter}
+            </span>
+            <h4 style="margin: 0;">{s.title}</h4>
+          </div>
+
+          <div style="display: flex; gap: var(--space-2); margin: var(--space-4) 0; font-family: var(--font-mono); font-size: 12px;">
+            {s.data.map((d) => (
+              <div style="flex: 1; background: var(--surface-2); padding: var(--space-3); border-radius: 6px; border: 1px solid var(--border-subtle); text-align: center;">
+                <div style="font-size: 10px; color: var(--text-tertiary); letter-spacing: 0.1em; margin-bottom: 2px;">{d.size}</div>
+                <div style={`font-size: 18px; font-weight: 500; color: ${s.color};`}>{d.val}%</div>
+              </div>
+            ))}
+          </div>
+
+          <p style="font-size: 15px; color: var(--text-primary);">
+            <strong>Lectura:</strong> {s.reading}
+          </p>
+          <p style="margin-top: var(--space-2); font-size: 15px; color: var(--text-secondary);">
+            <strong style="color: var(--text-primary);">Implicancia:</strong> {s.implication}
+          </p>
+
+          {s.highlight && (
+            <div style="margin-top: var(--space-4); font-size: 13px; color: var(--amber-500); font-family: var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase;">
+              ← Datos preliminares apuntan acá
+            </div>
+          )}
+          {s.annotation && (
+            <p style="margin-top: var(--space-3); font-size: 13px; color: var(--text-tertiary); font-style: italic;">
+              {s.annotation}
+            </p>
+          )}
+        </div>
+      ))}
+    </div>
+  </div>
+</section>

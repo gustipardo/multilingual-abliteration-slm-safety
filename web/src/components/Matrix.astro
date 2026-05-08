@@ -1,0 +1,180 @@
+---
+// 42-cell matrix: 3 Dense sizes × 7 languages × 2 conditions
+// Lee de data/outputs/compliance_rates.csv al hacer build.
+// Si el CSV no existe (corrida no terminada), todas las celdas quedan vacías.
+import fs from "node:fs";
+import path from "node:path";
+
+const sizes = ["E2B", "E4B", "31B"];
+const languages = ["EN", "ES", "ZH", "PT", "DE", "AR", "HI"];
+
+type CellData = { base: number | null; abl: number | null; n_base?: number; n_abl?: number };
+type SizeRow = Record<string, CellData>;
+
+const data: Record<string, SizeRow> = {};
+for (const s of sizes) {
+  const row: SizeRow = {};
+  for (const l of languages) row[l] = { base: null, abl: null };
+  data[s] = row;
+}
+
+// CSV path is relative to project root (one level above web/)
+const csvPath = path.resolve(process.cwd(), "../data/outputs/compliance_rates.csv");
+let csvFound = false;
+let lastUpdated: string | null = null;
+
+if (fs.existsSync(csvPath)) {
+  csvFound = true;
+  const stat = fs.statSync(csvPath);
+  lastUpdated = stat.mtime.toISOString().slice(0, 16).replace("T", " ") + " UTC";
+
+  const text = fs.readFileSync(csvPath, "utf-8");
+  const lines = text.trim().split(/\r?\n/);
+  const header = lines[0].split(",").map((s) => s.trim().toLowerCase());
+  const idx = (k: string) => header.indexOf(k);
+  const iSize = idx("size");
+  const iCond = idx("condition");
+  const iLang = idx("language");
+  const iRate = idx("compliance_rate");
+  const iN = idx("n");
+
+  for (let r = 1; r < lines.length; r++) {
+    const cols = lines[r].split(",").map((s) => s.trim());
+    if (!cols[iSize]) continue;
+    const sKey = cols[iSize].toUpperCase();
+    const lKey = cols[iLang].toUpperCase();
+    const cKey = cols[iCond].toLowerCase() === "abliterated" ? "abl" : "base";
+    const rate = parseFloat(cols[iRate]);
+    const n = iN >= 0 ? parseInt(cols[iN]) : undefined;
+    if (!data[sKey] || !data[sKey][lKey]) continue;
+    data[sKey][lKey][cKey] = isNaN(rate) ? null : rate;
+    if (n !== undefined) {
+      if (cKey === "base") data[sKey][lKey].n_base = n;
+      else data[sKey][lKey].n_abl = n;
+    }
+  }
+}
+
+function fmt(v: number | null) {
+  if (v === null) return "—";
+  return `${Math.round(v * 100)}%`;
+}
+
+function cellClass(size: string, lang: string, cond: "base" | "abl") {
+  const d = data[size][lang];
+  if (d[cond] === null) return "cell cell--empty";
+  return cond === "base" ? "cell cell--filled-base" : "cell cell--filled-abl";
+}
+
+// counts for status line
+const totalCells = sizes.length * languages.length * 2;
+let filled = 0;
+for (const s of sizes) for (const l of languages) {
+  if (data[s][l].base !== null) filled++;
+  if (data[s][l].abl !== null) filled++;
+}
+---
+
+<section class="section" id="matriz">
+  <div class="container container--wide">
+    <div class="section-number">06 — La matriz</div>
+    <h2>El experimento en una sola grilla</h2>
+
+    <p class="lead" style="margin-top: var(--space-6);">
+      Así se ve el experimento completo de un vistazo.
+      Cada celda representa el porcentaje de veces que el modelo cumplió un pedido dañino,
+      sobre 100 intentos. La combinación de tamaños, idiomas y condiciones forma la matriz de 42 celdas
+      que el estudio busca llenar.
+    </p>
+
+    <p class="muted" style="margin-top: var(--space-4); font-size: 14px;">
+      Los tres tamaños son <strong>todos Dense</strong> (E2B, E4B, 31B). El cuarto modelo del lineup,
+      Gemma 4 26B-A4B, es Mixture-of-Experts y queda fuera de este experimento principal para no mezclar
+      el efecto del tamaño con el de la arquitectura. Lo dejamos como sub-pregunta para otro momento.
+    </p>
+
+    <div class="concept" style="margin-top: var(--space-8);">
+      <span class="concept__term">Concepto clave</span>
+      <p class="concept__plain">
+        Al porcentaje de veces que el modelo cumplió con un pedido dañino lo llamamos
+        <span class="concept__name">compliance rate</span>. Un 0% significa que rechazó siempre
+        (filtro funciona). Un 100% significa que cumplió siempre (filtro roto). Es nuestra medida principal.
+      </p>
+    </div>
+
+    <p class="muted" style="margin-top: var(--space-8); text-align: center; font-family: var(--font-mono); font-size: 12px;">
+      {csvFound
+        ? `Datos cargados desde compliance_rates.csv · ${filled}/${totalCells} celdas completadas · actualizado ${lastUpdated}`
+        : "Datos aún no generados — la matriz se llena automáticamente al rebuildar la web cuando termina cada corrida."}
+    </p>
+
+    <h3 style="margin-top: var(--space-12);">Modelo base <span class="muted" style="font-weight: 400;">(sin modificar)</span></h3>
+
+    <div class="matrix-wrap">
+      <table class="matrix">
+        <thead>
+          <tr>
+            <th class="matrix-group-label">Tamaño</th>
+            {languages.map((l) => <th>{l}</th>)}
+          </tr>
+        </thead>
+        <tbody>
+          {sizes.map((s) => (
+            <tr>
+              <td class="matrix-group-label">{s}</td>
+              {languages.map((l) => (
+                <td class={cellClass(s, l, "base")} title={`${s} · ${l} · base${data[s][l].n_base ? ` · n=${data[s][l].n_base}` : ""}`}>
+                  {fmt(data[s][l].base)}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+
+    <h3 style="margin-top: var(--space-12);">Modelo abliterado <span class="muted" style="font-weight: 400;">(filtro roto en inglés)</span></h3>
+
+    <div class="matrix-wrap">
+      <table class="matrix">
+        <thead>
+          <tr>
+            <th class="matrix-group-label">Tamaño</th>
+            {languages.map((l) => <th>{l}</th>)}
+          </tr>
+        </thead>
+        <tbody>
+          {sizes.map((s) => (
+            <tr>
+              <td class="matrix-group-label">{s}</td>
+              {languages.map((l) => (
+                <td class={cellClass(s, l, "abl")} title={`${s} · ${l} · abliterated${data[s][l].n_abl ? ` · n=${data[s][l].n_abl}` : ""}`}>
+                  {fmt(data[s][l].abl)}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      <div class="matrix-legend">
+        <div class="matrix-legend__item">
+          <span class="matrix-legend__swatch" style="background: var(--alpha-sage-24); border: 1px solid var(--sage-500);"></span>
+          Base (filtro funciona)
+        </div>
+        <div class="matrix-legend__item">
+          <span class="matrix-legend__swatch" style="background: var(--alpha-terracota-28); border: 1px solid var(--terracota-500);"></span>
+          Abliterado (filtro roto)
+        </div>
+        <div class="matrix-legend__item">
+          <span class="matrix-legend__swatch" style="background: transparent; border: 1px dashed var(--border-default);"></span>
+          Celda pendiente
+        </div>
+      </div>
+    </div>
+
+    <p class="muted" style="margin-top: var(--space-8); text-align: center; font-family: var(--font-mono); font-size: 13px;">
+      3 tamaños Dense × 7 idiomas × 2 condiciones = 42 celdas · 4.200 evaluaciones
+    </p>
+  </div>
+</section>

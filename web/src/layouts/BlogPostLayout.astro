@@ -1,0 +1,298 @@
+---
+import BaseLayout from "./BaseLayout.astro";
+
+interface Frontmatter {
+  title: string;
+  description: string;
+  pubDate?: string;
+  status?: string;
+}
+
+const { frontmatter } = Astro.props as { frontmatter: Frontmatter };
+---
+
+<BaseLayout title={frontmatter.title} description={frontmatter.description}>
+  <main class="post">
+    <nav class="post__nav" aria-label="Volver al sitio">
+      <a href="/" class="post__back">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <line x1="19" y1="12" x2="5" y2="12"></line>
+          <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+        <span>Volver al resumen del proyecto</span>
+      </a>
+    </nav>
+
+    {frontmatter.status && (
+      <div class="post__status">{frontmatter.status}</div>
+    )}
+
+    <article class="post__article">
+      <slot />
+    </article>
+
+    <footer class="post__footer">
+      <a href="/" class="post__back post__back--bottom">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <line x1="19" y1="12" x2="5" y2="12"></line>
+          <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+        <span>Volver al resumen del proyecto</span>
+      </a>
+    </footer>
+  </main>
+</BaseLayout>
+
+<style>
+  .post {
+    max-width: var(--content-narrow);
+    margin: 0 auto;
+    padding: var(--space-12, 48px) var(--space-6, 24px) var(--space-16, 64px);
+  }
+
+  .post__nav {
+    margin-bottom: var(--space-10, 40px);
+  }
+
+  .post__back {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2, 8px);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--text-tertiary);
+    text-decoration: none;
+    letter-spacing: 0.04em;
+    transition: color 120ms ease;
+  }
+
+  .post__back:hover {
+    color: var(--text-primary);
+  }
+
+  .post__back--bottom {
+    margin-top: var(--space-12, 48px);
+  }
+
+  .post__status {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--amber-600, #B87826);
+    background: var(--alpha-amber-14, rgba(184, 120, 38, 0.10));
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-sm);
+    padding: 4px 10px;
+    margin-bottom: var(--space-8, 32px);
+  }
+
+  .post__article {
+    color: var(--text-primary);
+    font-family: var(--font-body);
+    font-size: 17px;
+    line-height: 1.72;
+  }
+
+  .post__article :global(h1) {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: clamp(30px, 4vw, 42px);
+    line-height: 1.2;
+    letter-spacing: -0.015em;
+    margin: 0 0 var(--space-6, 24px);
+    color: var(--text-primary);
+  }
+
+  .post__article :global(h2) {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: 26px;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+    margin: var(--space-12, 48px) 0 var(--space-4, 16px);
+    color: var(--text-primary);
+    padding-top: var(--space-4, 16px);
+    border-top: 1px solid var(--border-subtle);
+  }
+
+  .post__article :global(h3) {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: 20px;
+    line-height: 1.3;
+    margin: var(--space-8, 32px) 0 var(--space-3, 12px);
+    color: var(--text-primary);
+  }
+
+  .post__article :global(p) {
+    margin: 0 0 var(--space-5, 20px);
+  }
+
+  .post__article :global(strong) {
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .post__article :global(em) {
+    font-style: italic;
+    color: var(--text-primary);
+  }
+
+  .post__article :global(a) {
+    color: var(--terracota-600, #A04420);
+    text-decoration: underline;
+    text-decoration-color: var(--border-default);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+    transition: text-decoration-color 120ms ease;
+  }
+
+  .post__article :global(a:hover) {
+    text-decoration-color: var(--terracota-600, #A04420);
+  }
+
+  .post__article :global(blockquote) {
+    margin: var(--space-6, 24px) 0;
+    padding: var(--space-4, 16px) var(--space-5, 20px);
+    border-left: 3px solid var(--amber-500, #C68A30);
+    background: var(--surface-2, rgba(11, 16, 32, 0.02));
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    color: var(--text-secondary);
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  .post__article :global(blockquote p:last-child) {
+    margin-bottom: 0;
+  }
+
+  .post__article :global(ul),
+  .post__article :global(ol) {
+    margin: 0 0 var(--space-5, 20px);
+    padding-left: var(--space-6, 24px);
+  }
+
+  .post__article :global(li) {
+    margin-bottom: var(--space-2, 8px);
+  }
+
+  .post__article :global(li::marker) {
+    color: var(--text-tertiary);
+  }
+
+  .post__article :global(code) {
+    font-family: var(--font-mono);
+    font-size: 0.88em;
+    background: var(--surface-2, rgba(11, 16, 32, 0.04));
+    border: 1px solid var(--border-subtle);
+    border-radius: 4px;
+    padding: 1px 5px;
+    color: var(--text-primary);
+  }
+
+  .post__article :global(pre) {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 1.55;
+    background: var(--surface-2, rgba(11, 16, 32, 0.04));
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-md);
+    padding: var(--space-4, 16px);
+    overflow-x: auto;
+    margin: var(--space-5, 20px) 0;
+  }
+
+  .post__article :global(pre code) {
+    background: transparent;
+    border: none;
+    padding: 0;
+    font-size: inherit;
+  }
+
+  .post__article :global(hr) {
+    border: 0;
+    border-top: 1px solid var(--border-default);
+    margin: var(--space-10, 40px) 0;
+  }
+
+  .post__article :global(table) {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    font-family: var(--font-mono);
+    margin: var(--space-6, 24px) 0;
+    display: block;
+    overflow-x: auto;
+  }
+
+  .post__article :global(thead) {
+    background: var(--surface-2, rgba(11, 16, 32, 0.04));
+  }
+
+  .post__article :global(th) {
+    text-align: left;
+    padding: var(--space-3, 12px);
+    border-bottom: 1px solid var(--border-default);
+    font-weight: 600;
+    color: var(--text-secondary);
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+  }
+
+  .post__article :global(td) {
+    padding: var(--space-3, 12px);
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--text-primary);
+    white-space: nowrap;
+  }
+
+  .post__article :global(tr:last-child td) {
+    border-bottom: none;
+  }
+
+  .post__article :global(img) {
+    max-width: 100%;
+    height: auto;
+    border-radius: var(--radius-md);
+    margin: var(--space-6, 24px) 0;
+    border: 1px solid var(--border-subtle);
+  }
+
+  /* Make headings anchor-link friendly when scrolled to from a TOC. */
+  .post__article :global(h1),
+  .post__article :global(h2),
+  .post__article :global(h3) {
+    scroll-margin-top: 24px;
+  }
+
+  .post__footer {
+    margin-top: var(--space-16, 64px);
+    padding-top: var(--space-8, 32px);
+    border-top: 1px solid var(--border-default);
+  }
+
+  @media (max-width: 640px) {
+    .post {
+      padding: var(--space-8, 32px) var(--space-4, 16px) var(--space-12, 48px);
+    }
+
+    .post__article {
+      font-size: 16px;
+      line-height: 1.65;
+    }
+
+    .post__article :global(h1) {
+      font-size: 28px;
+    }
+
+    .post__article :global(h2) {
+      font-size: 22px;
+    }
+
+    .post__article :global(h3) {
+      font-size: 18px;
+    }
+  }
+</style>

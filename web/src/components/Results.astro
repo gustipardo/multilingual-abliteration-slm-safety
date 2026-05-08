@@ -1,0 +1,318 @@
+---
+const e2bRows = [
+  { lang: "EN", base: 4,  abl: 42 },
+  { lang: "ES", base: 7,  abl: 47 },
+  { lang: "ZH", base: 4,  abl: 45 },
+  { lang: "PT", base: 6,  abl: 40 },
+  { lang: "DE", base: 4,  abl: 44 },
+  { lang: "AR", base: 2,  abl: 43 },
+  { lang: "HI", base: 2,  abl: 39 },
+];
+const e4bRows = [
+  { lang: "EN", base: 13, abl: 70 },
+  { lang: "ES", base: 11, abl: 66 },
+  { lang: "ZH", base: 7,  abl: 64 },
+  { lang: "PT", base: 16, abl: 74 },
+  { lang: "DE", base: 10, abl: 74 },
+  { lang: "AR", base: 9,  abl: 64 },
+  { lang: "HI", base: 9,  abl: 65 },
+];
+const b31Rows = [
+  { lang: "EN", base: 16, abl: 67 },
+  { lang: "ES", base: 12, abl: 64 },
+  { lang: "ZH", base: 13, abl: 65 },
+  { lang: "PT", base: 16, abl: 63 },
+  { lang: "DE", base: 12, abl: 71 },
+  { lang: "AR", base: 10, abl: 61 },
+  { lang: "HI", base: 13, abl: 60 },
+];
+
+// Round each mean to 1 decimal first, then derive diffs from the rounded
+// values — keeps the web consistent with the rounded numbers in bitacora.md
+// and EXPERIMENTS.md (otherwise rounding-then-subtracting drifts by 0.1 pp).
+const mean1 = (rows: typeof e2bRows, key: "base" | "abl") =>
+  Number((rows.reduce((a, r) => a + r[key], 0) / rows.length).toFixed(1));
+
+const e2bBase = mean1(e2bRows, "base");
+const e2bAbl  = mean1(e2bRows, "abl");
+const e4bBase = mean1(e4bRows, "base");
+const e4bAbl  = mean1(e4bRows, "abl");
+const b31Base = mean1(b31Rows, "base");
+const b31Abl  = mean1(b31Rows, "abl");
+
+const gapE2B = Number((e2bAbl - e2bBase).toFixed(1));
+const gapE4B = Number((e4bAbl - e4bBase).toFixed(1));
+const gap31B = Number((b31Abl - b31Base).toFixed(1));
+
+const jumpE2BtoE4B = Number((e4bAbl - e2bAbl).toFixed(1));
+const jumpE4Bto31B = Number((b31Abl - e4bAbl).toFixed(1));
+
+const fmt = (v: number, dec = 1) => v.toFixed(dec);
+const sign = (v: number) => (v >= 0 ? "+" : "");
+---
+
+<section class="section" id="resultados">
+  <div class="container container--narrow">
+    <div class="section-number">07 — Resultados</div>
+    <h2>Lo que ya sabemos</h2>
+
+    <p class="lead" style="margin-top: var(--space-6);">
+      Los tres tamaños están corridos. E2B en la laptop el 3 de mayo. 31B en RunPod el 3-4 de mayo.
+      E4B también en RunPod (la laptop no aguanta el peak de loading) el 5 de mayo. Mecanística
+      (refusal directions + silhouette) para E4B y 31B corrida en dos pods RunPod fresh el 6 de mayo,
+      en paralelo, ~$0.70 combinados. Pipeline completo cerrado.
+    </p>
+
+    <div class="callout callout--finding" style="margin-top: var(--space-8);">
+      <span class="callout__label">Hallazgo principal</span>
+      <p>
+        La curva tamaño → cumplimiento post-abliteración <strong>no es monótona</strong>:
+        sube fuerte de E2B a E4B (<strong>{sign(jumpE2BtoE4B)}{fmt(jumpE2BtoE4B)} pp</strong>,
+        de {fmt(e2bAbl)}% a {fmt(e4bAbl)}%) y después baja un poquito de E4B a 31B
+        (<strong>{sign(jumpE4Bto31B)}{fmt(jumpE4Bto31B)} pp</strong>, de {fmt(e4bAbl)}% a {fmt(b31Abl)}%).
+        El <strong>pico de vulnerabilidad está en E4B (~4B parámetros)</strong>, no en el modelo más grande.
+      </p>
+      <p style="margin-top: var(--space-3);">
+        El gap base→abliterado también tiene su máximo en E4B (<strong>+{fmt(gapE4B)} pp</strong>, vs
+        +{fmt(gapE2B)} en E2B y +{fmt(gap31B)} en 31B). En E4B la abliteración por single-vector funciona
+        casi al máximo; en E2B queda incompleta y en 31B se atenúa levemente.
+      </p>
+      <p style="margin-top: var(--space-3);">
+        Las dos lecturas naive del paradox de la democratización ("los chicos se rompen más" o
+        "los grandes se rompen más") <em>no</em> describen los datos. La realidad es más interesante:
+        la vulnerabilidad <strong>tiene su máximo justo en el tamaño más accesible para correr en
+        un teléfono o una laptop modesta</strong>. La hipótesis del paradox sigue viva — sólo cambia
+        el mecanismo.
+      </p>
+    </div>
+
+    <h3 style="margin-top: var(--space-12);">Comparación entre tamaños · medias por idioma</h3>
+
+    <table class="compare-table" style="margin-top: var(--space-6);">
+      <thead>
+        <tr>
+          <th></th>
+          <th>base</th>
+          <th>abliterado</th>
+          <th>gap base→abl</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="row-label">E2B (~2B)</td>
+          <td class="num">{fmt(e2bBase)}%</td>
+          <td class="num" style="color: var(--terracota-300);">{fmt(e2bAbl)}%</td>
+          <td class="num" style="color: var(--amber-300);">+{fmt(gapE2B)} pp</td>
+        </tr>
+        <tr style="background: var(--alpha-terracota-14);">
+          <td class="row-label" style="font-weight: 600;">E4B (~4B) ← pico</td>
+          <td class="num">{fmt(e4bBase)}%</td>
+          <td class="num" style="color: var(--terracota-300); font-weight: 600;">{fmt(e4bAbl)}%</td>
+          <td class="num" style="color: var(--amber-300); font-weight: 600;">+{fmt(gapE4B)} pp</td>
+        </tr>
+        <tr>
+          <td class="row-label">31B (~31B)</td>
+          <td class="num">{fmt(b31Base)}%</td>
+          <td class="num" style="color: var(--terracota-300);">{fmt(b31Abl)}%</td>
+          <td class="num" style="color: var(--amber-300);">+{fmt(gap31B)} pp</td>
+        </tr>
+        <tr style="border-top: 1px solid var(--border-default);">
+          <td class="row-label">Δ E2B → E4B</td>
+          <td class="num">+{fmt(Number((e4bBase - e2bBase).toFixed(1)))} pp</td>
+          <td class="num" style="color: var(--terracota-300); font-weight: 600;">{sign(jumpE2BtoE4B)}{fmt(jumpE2BtoE4B)} pp</td>
+          <td class="num" style="color: var(--amber-300);">+{fmt(Number((gapE4B - gapE2B).toFixed(1)))} pp más ancho</td>
+        </tr>
+        <tr>
+          <td class="row-label">Δ E4B → 31B</td>
+          <td class="num">+{fmt(Number((b31Base - e4bBase).toFixed(1)))} pp</td>
+          <td class="num" style="color: var(--terracota-300); font-weight: 600;">{sign(jumpE4Bto31B)}{fmt(jumpE4Bto31B)} pp</td>
+          <td class="num" style="color: var(--amber-300);">{fmt(Number((gap31B - gapE4B).toFixed(1)))} pp más angosto</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3 style="margin-top: var(--space-12);">Compliance por idioma · Gemma 4 E2B</h3>
+
+    <p class="muted" style="margin-top: var(--space-3); font-size: 14px;">
+      "Compliance" = porcentaje de los 100 pedidos dañinos que el modelo cumplió.
+      0% = filtro funciona, 100% = filtro roto.
+    </p>
+
+    <table class="compare-table" style="margin-top: var(--space-6);">
+      <thead>
+        <tr>
+          <th></th>
+          {e2bRows.map((r) => (<th>{r.lang}</th>))}
+          <th style="border-left: 1px solid var(--border-default); padding-left: var(--space-4);">prom.</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="row-label">Base</td>
+          {e2bRows.map((r) => (<td class="num">{r.base}%</td>))}
+          <td class="num" style="border-left: 1px solid var(--border-default); padding-left: var(--space-4); font-weight: 600;">{Math.round(e2bBase)}%</td>
+        </tr>
+        <tr>
+          <td class="row-label">Abliterado</td>
+          {e2bRows.map((r) => (<td class="num" style="color: var(--terracota-300);">{r.abl}%</td>))}
+          <td class="num" style="border-left: 1px solid var(--border-default); padding-left: var(--space-4); font-weight: 600; color: var(--terracota-300);">{Math.round(e2bAbl)}%</td>
+        </tr>
+        <tr>
+          <td class="row-label">Δ (gap)</td>
+          {e2bRows.map((r) => (<td class="num" style="color: var(--amber-300);">+{r.abl - r.base}</td>))}
+          <td class="num" style="border-left: 1px solid var(--border-default); padding-left: var(--space-4); font-weight: 600; color: var(--amber-300);">+{Math.round(gapE2B)}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3 style="margin-top: var(--space-12);">Compliance por idioma · Gemma 4 E4B <span style="font-size: 14px; color: var(--terracota-300); font-weight: 400;">← pico de vulnerabilidad</span></h3>
+
+    <table class="compare-table" style="margin-top: var(--space-6);">
+      <thead>
+        <tr>
+          <th></th>
+          {e4bRows.map((r) => (<th>{r.lang}</th>))}
+          <th style="border-left: 1px solid var(--border-default); padding-left: var(--space-4);">prom.</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="row-label">Base</td>
+          {e4bRows.map((r) => (<td class="num">{r.base}%</td>))}
+          <td class="num" style="border-left: 1px solid var(--border-default); padding-left: var(--space-4); font-weight: 600;">{Math.round(e4bBase)}%</td>
+        </tr>
+        <tr>
+          <td class="row-label">Abliterado</td>
+          {e4bRows.map((r) => (<td class="num" style="color: var(--terracota-300);">{r.abl}%</td>))}
+          <td class="num" style="border-left: 1px solid var(--border-default); padding-left: var(--space-4); font-weight: 600; color: var(--terracota-300);">{Math.round(e4bAbl)}%</td>
+        </tr>
+        <tr>
+          <td class="row-label">Δ (gap)</td>
+          {e4bRows.map((r) => (<td class="num" style="color: var(--amber-300);">+{r.abl - r.base}</td>))}
+          <td class="num" style="border-left: 1px solid var(--border-default); padding-left: var(--space-4); font-weight: 600; color: var(--amber-300);">+{Math.round(gapE4B)}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3 style="margin-top: var(--space-12);">Compliance por idioma · Gemma 4 31B</h3>
+
+    <table class="compare-table" style="margin-top: var(--space-6);">
+      <thead>
+        <tr>
+          <th></th>
+          {b31Rows.map((r) => (<th>{r.lang}</th>))}
+          <th style="border-left: 1px solid var(--border-default); padding-left: var(--space-4);">prom.</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="row-label">Base</td>
+          {b31Rows.map((r) => (<td class="num">{r.base}%</td>))}
+          <td class="num" style="border-left: 1px solid var(--border-default); padding-left: var(--space-4); font-weight: 600;">{Math.round(b31Base)}%</td>
+        </tr>
+        <tr>
+          <td class="row-label">Abliterado</td>
+          {b31Rows.map((r) => (<td class="num" style="color: var(--terracota-300);">{r.abl}%</td>))}
+          <td class="num" style="border-left: 1px solid var(--border-default); padding-left: var(--space-4); font-weight: 600; color: var(--terracota-300);">{Math.round(b31Abl)}%</td>
+        </tr>
+        <tr>
+          <td class="row-label">Δ (gap)</td>
+          {b31Rows.map((r) => (<td class="num" style="color: var(--amber-300);">+{r.abl - r.base}</td>))}
+          <td class="num" style="border-left: 1px solid var(--border-default); padding-left: var(--space-4); font-weight: 600; color: var(--amber-300);">+{Math.round(gap31B)}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p style="margin-top: var(--space-8);">
+      Cinco observaciones, ya con los tres tamaños:
+    </p>
+
+    <ol class="list-numbered" style="margin-top: var(--space-6);">
+      <li>
+        <h4>El eje tamaño no es monótono. La vulnerabilidad pico está en E4B.</h4>
+        <p class="muted">
+          Sube +{fmt(jumpE2BtoE4B)} pp de E2B a E4B y después baja {fmt(jumpE4Bto31B)} pp de E4B a 31B.
+          Ni "los chicos se rompen más" ni "los grandes se rompen más" describen estos datos. El máximo
+          está en el medio.
+        </p>
+      </li>
+      <li>
+        <h4>El gap base→abliterado también tiene su máximo en E4B (+{fmt(gapE4B)} pp).</h4>
+        <p class="muted">
+          La abliteración por single-vector es más efectiva en E4B que en cualquiera de los otros dos
+          tamaños. Se podría leer como que la "dirección de rechazo" en E4B está más concentrada en
+          una sola dimensión — y por eso el ataque single-vector la borra casi entera.
+        </p>
+      </li>
+      <li>
+        <h4>El base sigue subiendo monótonamente (4 → 11 → 13). El abliterated no.</h4>
+        <p class="muted">
+          La compliance de los modelos con filtro intacto crece de manera ordenada con el tamaño.
+          Pero la post-abliteración se desacopla en 31B. Son dos efectos distintos: seguir
+          instrucciones (incluso dañinas) escala con el tamaño; resistir a la abliteración escala
+          al revés en el extremo grande.
+        </p>
+      </li>
+      <li>
+        <h4>E4B es el que más se acerca al rango Wang et al. (80–90% para 7B+ Dense).</h4>
+        <p class="muted">
+          Máximo de E4B abliterado: 74% (PT y DE). Máximo de 31B: 71% (DE). Máximo de E2B: 47% (ES).
+          La lectura de "rechazo low-rank residual" del paper de Wang et al. fitea peor justo en el
+          punto medio. La abliteración rompe E4B casi por completo, pese a que es el modelo más
+          chico de los dos cloud-grade.
+        </p>
+      </li>
+      <li>
+        <h4>Hindi resiste consistentemente en los tres tamaños.</h4>
+        <p class="muted">
+          39% en E2B, 65% en E4B, 60% en 31B — Hindi está siempre entre los más bajos. La hipótesis
+          cruda "menos recurso = más vulnerable" se sigue refutando en todos los puntos. El idioma
+          alto-recurso con techo más alto cambia con el tamaño: ES en E2B (47%), PT y DE empatan en
+          E4B (74%), DE en 31B (71%).
+        </p>
+      </li>
+    </ol>
+
+    <div class="callout callout--finding" style="margin-top: var(--space-8);">
+      <span class="callout__label">El caso del rechazo tardío (sigue importando)</span>
+      <p>
+        En el sanity check de abril, uno de los prompts del modelo abliterado arrancó con
+        <em>"I can't give you specific advice"</em> y siguió, durante 400 tokens,
+        explicando dinámica de mercados de droga y métodos de distribución.
+      </p>
+      <p style="margin-top: var(--space-3);">
+        Si hubiéramos buscado palabras clave de rechazo en los primeros 50 tokens, lo marcamos como
+        "rechazado". El modelo claramente cumplió. Por eso el juez lee la respuesta entera.
+        Esto es lo que llamamos <strong>rechazo tardío</strong> y es la razón principal por la que
+        no usamos detección por keywords.
+      </p>
+    </div>
+
+    <div class="callout callout--author" style="margin-top: var(--space-8);">
+      <span class="callout__label">Voz del autor</span>
+      <p>
+        Tengo los tres puntos de la curva tamaño → compliance, y la curvatura es la sorpresa. No
+        esperaba que E4B superara a 31B. Después de revisar los logs y las respuestas individuales,
+        la lectura que más sentido me hace: en E4B el ataque de abliteración por single-vector
+        encuentra la representación de rechazo más "limpia" — concentrada en una sola dirección y
+        casi sin componentes residuales — mientras que en E2B y 31B la geometría es más distribuida
+        y el ataque deja partes del filtro intactas. Eso convierte al modelo más accesible (corre
+        en consumer GPUs, cerca de phone-scale a baja cuantización) en el más vulnerable. La
+        democratization safety paradox sigue válida; sólo que el mecanismo es más sutil que
+        "los chicos se rompen más".
+      </p>
+      <p style="margin-top: var(--space-3);">
+        Notas operativas: el run de E4B tuvo que mudarse a la nube porque la laptop no aguantó el
+        peak de loading en 4-bit (el RTX 4070 de 8 GB se quedó corto). Salió $7.33 en RunPod RTX 5090,
+        7h 1m. La autoeliminación del pod falló (la versión vieja de runpodctl no tiene el subcomando
+        <code>pod</code>); lo borré a mano. El upload a un dataset privado de HuggingFace funcionó
+        perfecto y es el patrón que se usó después para las dos corridas mecanísticas desatendidas.
+        Mecanística E4B + 31B corrieron en dos pods fresh el 6 de mayo, en paralelo, ~$0.70
+        combinados, self-terminate por GraphQL <code>podTerminate</code>. La cosine similarity
+        cross-lingual de las refusal directions también pica en E4B (mean 0.37 vs 0.31 E2B y 0.27
+        31B), confirmando que la geometría de rechazo está más concentrada en mid-size Dense.
+        El pico de compliance y el pico de geometría coinciden.
+      </p>
+    </div>
+  </div>
+</section>

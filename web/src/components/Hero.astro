@@ -1,0 +1,80 @@
+---
+---
+
+<section class="section section--hero" id="hero">
+  <div class="container container--narrow">
+    <span class="eyebrow">Investigación en seguridad de IA · mayo 2026</span>
+    <h1>
+      La paradoja de la <span style="color: var(--amber-500); font-style: italic;">democratización</span>:
+      <br />
+      ¿los modelos más accesibles son los más peligrosos?
+    </h1>
+    <p class="lead" style="margin-top: var(--space-8); color: var(--text-secondary);">
+      Un modelo de IA que corre en un celular. Sin filtro. Hablando 140 idiomas.
+      Subido a internet <strong style="color: var(--text-primary);">48 horas</strong> después del lanzamiento oficial.
+      Esta investigación pregunta: ¿qué tan roto está ese filtro en cada idioma? ¿Y los modelos más chicos se rompen más que los grandes?
+    </p>
+
+    <div class="hero__cta">
+      <a href="/blog-post" class="hero__cta-primary">
+        <span>Leer el blog post completo</span>
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+          <polyline points="12 5 19 12 12 19"></polyline>
+        </svg>
+      </a>
+      <span class="hero__cta-meta">~15 min de lectura · resultados, métodos y limitaciones</span>
+    </div>
+
+    <div class="scroll-hint">
+      <span>o seguí leyendo el resumen</span>
+      <span class="scroll-hint__arrow">↓</span>
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero__cta {
+    margin-top: var(--space-10, 40px);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-2, 8px);
+  }
+
+  .hero__cta-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3, 12px);
+    padding: 12px 22px;
+    background: var(--text-primary);
+    color: var(--bg-base);
+    border-radius: var(--radius-md);
+    font-family: var(--font-body);
+    font-size: 15px;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    text-decoration: none;
+    transition: transform 120ms ease, opacity 120ms ease;
+  }
+
+  .hero__cta-primary:hover {
+    transform: translateY(-1px);
+    opacity: 0.9;
+  }
+
+  .hero__cta-primary svg {
+    transition: transform 160ms ease;
+  }
+
+  .hero__cta-primary:hover svg {
+    transform: translateX(2px);
+  }
+
+  .hero__cta-meta {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-tertiary);
+    letter-spacing: 0.04em;
+  }
+</style>

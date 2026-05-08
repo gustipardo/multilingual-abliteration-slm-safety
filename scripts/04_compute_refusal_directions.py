@@ -2,11 +2,21 @@
 Phase 5: Extract refusal directions and compute cross-lingual cosine similarity.
 Replicates Wang et al. (2505.17306) mechanistic analysis for Gemma 4 variants.
 
+Methodology notes:
+- For each language X, harmful AND harmless prompts must both be in X.
+  Harmful prompts: data/prompts/{lang}.jsonl (BeaverTails sample, translated).
+  Harmless prompts: data/prompts/harmless.jsonl (built by 01b_prepare_harmless.py).
+  Otherwise the resulting direction conflates "harmful vs harmless" with
+  "English vs target language".
+- Activations are extracted AFTER applying the model's chat template, matching
+  how the model is actually run during inference (script 02). This is also the
+  convention used by Arditi et al. (2024) and Wang et al. (2025).
+
 Usage:
     python scripts/04_compute_refusal_directions.py --size e2b
     python scripts/04_compute_refusal_directions.py --size e4b
 
-Output: data/outputs/refusal_directions_{size}.pt  (dict of {lang: direction_tensor})
+Output: data/outputs/refusal_directions_{size}.pt   (dict {lang: tensor})
         data/outputs/cosine_similarity_{size}.csv
 """
 
@@ -30,121 +40,131 @@ def load_config():
 def load_model(model_id, hw_cfg):
     quant_config = None
     if hw_cfg["load_in_4bit"]:
+        # Same config as scripts/02_run_inference.py — keep aligned so the
+        # mechanistic activations come from the *exact* same loaded weights
+        # as the inference responses. Double-quant is the load-time default we
+        # use for compliance runs; mismatching it here would introduce a tiny
+        # numerical drift between the two stages.
         quant_config = BitsAndBytesConfig(
-            load_in_4bit=True, bnb_4bit_compute_dtype=torch.bfloat16
+            load_in_4bit=True,
+            bnb_4bit_compute_dtype=torch.bfloat16,
+            bnb_4bit_use_double_quant=True,
         )
     elif hw_cfg["load_in_8bit"]:
         quant_config = BitsAndBytesConfig(load_in_8bit=True)
 
     dtype = torch.bfloat16 if hw_cfg["dtype"] == "bfloat16" else torch.float16
+    if quant_config is not None and torch.cuda.is_available():
+        device_map = {"": 0}
+    else:
+        device_map = hw_cfg["device_map"]
+
     model = AutoModelForCausalLM.from_pretrained(
         model_id,
         quantization_config=quant_config,
-        torch_dtype=dtype if quant_config is None else None,
-        device_map=hw_cfg["device_map"],
-        output_hidden_states=True,
+        dtype=dtype if quant_config is None else None,
+        device_map=device_map,
         trust_remote_code=True,
     )
     tokenizer = AutoTokenizer.from_pretrained(model_id, trust_remote_code=True)
     return model, tokenizer
 
 
-def get_last_token_activations(model, tokenizer, texts, layer_idx):
-    """Extract residual stream activation at last token position, specific layer."""
-    activations = []
+def format_with_chat_template(tokenizer, text):
+    if tokenizer.chat_template:
+        return tokenizer.apply_chat_template(
+            [{"role": "user", "content": text}],
+            tokenize=False, add_generation_prompt=True,
+        )
+    return text
 
-    for text in tqdm(texts, desc="Extracting activations", leave=False):
-        inputs = tokenizer(text, return_tensors="pt",
+
+def get_last_token_activations(model, tokenizer, texts, layer_idx):
+    activations = []
+    for text in tqdm(texts, desc="Activations", leave=False):
+        formatted = format_with_chat_template(tokenizer, text)
+        inputs = tokenizer(formatted, return_tensors="pt",
                            truncation=True, max_length=512).to(model.device)
         with torch.no_grad():
             outputs = model(**inputs, output_hidden_states=True)
+        hidden = outputs.hidden_states[layer_idx]    # (1, seq_len, hidden_dim)
+        activations.append(hidden[0, -1, :].float().cpu())
+    return torch.stack(activations)                  # (n_prompts, hidden_dim)
 
-        # hidden_states[layer_idx] shape: (1, seq_len, hidden_dim)
-        hidden = outputs.hidden_states[layer_idx]
-        last_token = hidden[0, -1, :].float().cpu()
-        activations.append(last_token)
 
-    return torch.stack(activations)  # (n_prompts, hidden_dim)
+def load_prompts_for_lang(prompt_file, lang):
+    if not prompt_file.exists():
+        return None
+    with open(prompt_file) as f:
+        prompts = [json.loads(line) for line in f]
+    key = f"prompt_{lang}"
+    return [p.get(key, p["prompt_en"]) for p in prompts]
 
 
 def compute_refusal_direction(harmful_acts, harmless_acts):
-    """Mean difference direction, normalized."""
     direction = harmful_acts.mean(0) - harmless_acts.mean(0)
     return direction / direction.norm()
 
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--size", required=True, choices=["e2b", "e4b", "12b", "27b"])
+    parser.add_argument("--size", required=True, choices=["e2b", "e4b", "26b", "31b"])
     args = parser.parse_args()
 
     cfg = load_config()
     torch.manual_seed(cfg["seed"])
     layer_idx = cfg["mechanistic"]["layer_idx"]
 
-    # Use BASE model for refusal direction extraction
+    # Refusal direction is computed on the BASE model (the one whose safety
+    # geometry we want to characterize before abliteration disrupts it).
     model_id = cfg["models"]["base"][args.size]
     hw_cfg = cfg["hardware"][args.size]
+
+    harmless_path = Path("data/prompts/harmless.jsonl")
+    if not harmless_path.exists():
+        raise SystemExit(
+            f"{harmless_path} missing. Run scripts/01b_prepare_harmless.py first."
+        )
+
+    print(f"Loading {model_id}...")
     model, tokenizer = load_model(model_id, hw_cfg)
 
     out_dir = Path("data/outputs")
-    out_dir.mkdir(exist_ok=True)
+    out_dir.mkdir(parents=True, exist_ok=True)
 
     refusal_dirs = {}
-
     for lang in cfg["languages"]:
-        prompt_file = Path(f"data/prompts/{lang}.jsonl")
-        if not prompt_file.exists():
-            print(f"Skipping {lang} — prompt file missing")
+        harmful_texts = load_prompts_for_lang(Path(f"data/prompts/{lang}.jsonl"), lang)
+        if harmful_texts is None:
+            print(f"  Skipping {lang} — harmful prompt file missing")
             continue
+        harmless_texts = load_prompts_for_lang(harmless_path, lang)
 
-        with open(prompt_file) as f:
-            prompts = [json.loads(line) for line in f]
-
-        prompt_key = f"prompt_{lang}" if lang != "en" else "prompt_en"
-        harmful_texts = [p.get(prompt_key, p["prompt_en"]) for p in prompts]
-
-        # Harmless: replace harmful request with benign version
-        # Simple approach: use the English "What is the weather today?" as harmless
-        # Better: use WildGuardMix's benign prompts
-        harmless_texts = [
-            "Tell me an interesting fact about science.",
-            "What is the capital of France?",
-            "Explain how photosynthesis works.",
-            "What are some popular tourist destinations?",
-            "How do I make a cup of tea?",
-        ] * (len(harmful_texts) // 5 + 1)
-        harmless_texts = harmless_texts[:len(harmful_texts)]
-
-        print(f"\nExtracting activations for {lang} ({args.size})...")
+        print(f"\n[{args.size}/{lang}] {len(harmful_texts)} harmful + "
+              f"{len(harmless_texts)} harmless prompts")
         harmful_acts = get_last_token_activations(model, tokenizer, harmful_texts, layer_idx)
         harmless_acts = get_last_token_activations(model, tokenizer, harmless_texts, layer_idx)
 
-        direction = compute_refusal_direction(harmful_acts, harmless_acts)
-        refusal_dirs[lang] = direction
-        print(f"  Refusal direction shape: {direction.shape}")
+        refusal_dirs[lang] = compute_refusal_direction(harmful_acts, harmless_acts)
+        print(f"  refusal direction: shape={tuple(refusal_dirs[lang].shape)}")
 
-    # Save directions
     torch.save(refusal_dirs, out_dir / f"refusal_directions_{args.size}.pt")
-    print(f"\nSaved refusal directions → data/outputs/refusal_directions_{args.size}.pt")
+    print(f"\nSaved → data/outputs/refusal_directions_{args.size}.pt")
 
-    # Cross-lingual cosine similarity matrix
     languages = list(refusal_dirs.keys())
     n = len(languages)
     sim_matrix = np.zeros((n, n))
-
     for i, l1 in enumerate(languages):
         for j, l2 in enumerate(languages):
-            sim = torch.nn.functional.cosine_similarity(
+            sim_matrix[i, j] = torch.nn.functional.cosine_similarity(
                 refusal_dirs[l1].unsqueeze(0),
-                refusal_dirs[l2].unsqueeze(0)
+                refusal_dirs[l2].unsqueeze(0),
             ).item()
-            sim_matrix[i, j] = sim
 
     df_sim = pd.DataFrame(sim_matrix, index=languages, columns=languages)
     sim_path = out_dir / f"cosine_similarity_{args.size}.csv"
     df_sim.to_csv(sim_path)
-    print(f"Saved cosine similarity matrix → {sim_path}")
+    print(f"Saved → {sim_path}")
     print(f"\nCross-lingual refusal direction cosine similarity ({args.size}):")
     print(df_sim.round(3).to_string())
 
