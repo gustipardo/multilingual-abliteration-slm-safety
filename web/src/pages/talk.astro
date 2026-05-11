@@ -1,0 +1,1044 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import SizeVsCompliance from "../components/SizeVsCompliance.astro";
+
+const title = "Talk · 6 min — La paradoja de la democratización";
+const description =
+  "Presentación de 6 minutos sobre Gemma 4, abliteration pública y la paradoja de la democratización. BAISH · BlueDot 2026.";
+---
+
+<BaseLayout title={title} description={description}>
+  <div class="talk" id="talk">
+    <!-- 1. Cover -->
+    <section class="slide slide--cover active" data-slide aria-labelledby="s1-title">
+      <div class="slide__content">
+        <p class="kicker">BAISH · BlueDot Technical AI Safety · Mayo 2026</p>
+        <h1 id="s1-title" class="slide__title slide__title--xl">
+          El modelo Gemma 4 más <em>jailbreakeable</em><br />
+          es el que cabe en un teléfono.
+        </h1>
+        <p class="slide__sub">
+          Cuando bajás el filtro de seguridad, el peor no es el más chico.
+        </p>
+        <p class="slide__byline">Gus Pardo · 6 min talk</p>
+      </div>
+    </section>
+
+    <!-- 2. The threat: 48 hours -->
+    <section class="slide" data-slide aria-labelledby="s2-title">
+      <div class="slide__content">
+        <p class="kicker">El problema</p>
+        <h2 id="s2-title" class="slide__title">
+          <span class="t-amber">48 horas</span> entre el modelo<br />
+          y su versión <em>abliterated</em> pública.
+        </h2>
+        <ul class="slide__beats">
+          <li><strong>2 abril 2026</strong> — Google libera la familia Gemma 4 (cuatro tamaños).</li>
+          <li><strong>4 abril 2026</strong> — <code>huihui-ai</code> publica las versiones abliteradas en HuggingFace.</li>
+          <li>Cualquier persona las puede bajar y correr en su computadora.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 3. What is abliteration -->
+    <section class="slide" data-slide aria-labelledby="s3-title">
+      <div class="slide__content">
+        <p class="kicker">Qué es <em>abliteration</em></p>
+        <h2 id="s3-title" class="slide__title">
+          Una sola dirección dentro del modelo dispara el rechazo.<br />
+          Se la elimina, y el modelo deja de rechazar.
+        </h2>
+        <ul class="slide__beats">
+          <li>
+            Cuando un modelo decide rechazar un pedido dañino, esa decisión vive en una sola dirección dentro de su <em>residual stream</em> (Arditi 2024). Eso es la <strong>refusal direction</strong>.
+          </li>
+          <li>
+            <em>Abliteration</em>: encontrar la dirección y proyectarla fuera de cada capa.
+          </li>
+          <li>
+            El modelo deja de rechazar y conserva el resto de sus capacidades.
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 4. Open question (Wang vs us) -->
+    <section class="slide" data-slide aria-labelledby="s4-title">
+      <div class="slide__content">
+        <p class="kicker">Lo que estaba abierto</p>
+        <h2 id="s4-title" class="slide__title">
+          Wang et al. lo hicieron en laboratorio.<br />
+          ¿Funciona la versión <strong>pública</strong> en Gemma 4?
+        </h2>
+        <ul class="slide__beats">
+          <li>
+            <strong>Wang et al. 2025</strong>: la <em>refusal direction</em> derivada del inglés también rompe el rechazo en otros 13 idiomas, en modelos Yi, Qwen 2.5, Llama 3 y Gemma 2 (mayormente 7B-14B).
+          </li>
+          <li>
+            Pero la extracción la hacían ellos. Nadie había testeado la <strong>receta pública</strong> sobre Gemma 4 Dense.
+          </li>
+        </ul>
+        <p class="slide__sub">
+          ¿Cómo escala el ataque desde E2B (~2.3B) hasta 31B?
+        </p>
+      </div>
+    </section>
+
+    <!-- 5. Setup -->
+    <section class="slide" data-slide aria-labelledby="s5-title">
+      <div class="slide__content">
+        <p class="kicker">Setup</p>
+        <h2 id="s5-title" class="slide__title">
+          <span class="t-amber">4.200</span> evaluaciones, una sola receta.
+        </h2>
+        <div class="slide__grid">
+          <div class="cell">
+            <span class="cell__num">3</span>
+            <span class="cell__lab">tamaños Dense (E2B, E4B, 31B)</span>
+          </div>
+          <div class="cell">
+            <span class="cell__num">2</span>
+            <span class="cell__lab">condiciones (base + abliterated, <code>huihui-ai</code>)</span>
+          </div>
+          <div class="cell">
+            <span class="cell__num">7</span>
+            <span class="cell__lab">idiomas (EN, ES, ZH, PT, DE, AR, HI)</span>
+          </div>
+          <div class="cell">
+            <span class="cell__num">100</span>
+            <span class="cell__lab">prompts dañinos por idioma (BeaverTails)</span>
+          </div>
+        </div>
+        <p class="slide__caption">
+          Juez: Claude Haiku 4.5 sobre la respuesta completa de 512 tokens.
+        </p>
+      </div>
+    </section>
+
+    <!-- 6. Main result: chart -->
+    <section class="slide slide--data" data-slide aria-labelledby="s6-title">
+      <div class="slide__content">
+        <p class="kicker">Resultado principal</p>
+        <h2 id="s6-title" class="slide__title">
+          El ataque <strong>no</strong> sube linealmente con el tamaño.<br />
+          Pico en el modelo del medio.
+        </h2>
+        <div class="slide-chart">
+          <SizeVsCompliance />
+        </div>
+        <p class="slide__caption">
+          Compliance promedio sobre los 7 idiomas, post-abliteration. SE pooled ≈ 1.8 pp.
+        </p>
+      </div>
+    </section>
+
+    <!-- 7. Mechanism: cosine peaks at E4B -->
+    <section class="slide" data-slide aria-labelledby="s7-title">
+      <div class="slide__content">
+        <p class="kicker">Por qué el pico está en el medio</p>
+        <h2 id="s7-title" class="slide__title">
+          Donde más se alinea la geometría<br />
+          es donde más rompe el ataque.
+        </h2>
+        <ol class="mech-steps">
+          <li>
+            <span class="mech-steps__num">1</span>
+            <span class="mech-steps__txt">
+              Para cada idioma extraemos su <em>refusal direction</em>: el promedio de
+              activations en pedidos dañinos menos el promedio en pedidos inocuos
+              (método de Arditi 2024, capa intermedia).
+            </span>
+          </li>
+          <li>
+            <span class="mech-steps__num">2</span>
+            <span class="mech-steps__txt">
+              Comparamos las 7 direcciones con <em>cosine similarity</em>: 1.0 = mismo eje,
+              0 = ortogonales. Cuanto más alineadas, una sola ablación las borra a todas.
+            </span>
+          </li>
+        </ol>
+
+        <div class="cosine-line">
+          <div class="cos-cell">
+            <span class="cos-cell__name">E2B</span>
+            <span class="cos-cell__num">0.31</span>
+          </div>
+          <div class="cos-cell cos-cell--peak">
+            <span class="cos-cell__name">E4B</span>
+            <span class="cos-cell__num">0.37</span>
+          </div>
+          <div class="cos-cell">
+            <span class="cos-cell__name">31B</span>
+            <span class="cos-cell__num">0.27</span>
+          </div>
+        </div>
+
+        <p class="slide__caption mech-caveat">
+          <strong>Análisis post-hoc</strong> · medimos la geometría <em>después</em> de ver
+          el compliance. Es una lectura consistente, no una predicción confirmada — habría
+          que correr una segunda extracción independiente para descartar artefacto del
+          extractor de <code>huihui-ai</code>.
+        </p>
+      </div>
+    </section>
+
+    <!-- 8. The paradox, calibrated -->
+    <section class="slide" data-slide aria-labelledby="s8-title">
+      <div class="slide__content">
+        <p class="kicker">La paradoja, recalibrada</p>
+        <h2 id="s8-title" class="slide__title">
+          El más grande que cabe en tu bolsillo<br />
+          es <span class="t-terra">el más roto</span>.
+        </h2>
+        <p class="slide__sub">
+          Comportamiento natural de cualquier usuario: bajar el modelo más grande que su
+          dispositivo aguanta. Eso lleva a una conclusión incómoda en celular.
+        </p>
+
+        <div class="tier-grid">
+          <div class="tier">
+            <span class="tier__device">Celular básico</span>
+            <span class="tier__hw">~4 GB RAM</span>
+            <span class="tier__sep"></span>
+            <span class="tier__model">cabe E2B (~1.5 GB en 4-bit)</span>
+            <span class="tier__compl">42.9%</span>
+            <span class="tier__lab">post-abliteration</span>
+          </div>
+          <div class="tier tier--peak">
+            <span class="tier__device">Celular alta gama</span>
+            <span class="tier__hw">~8 GB RAM</span>
+            <span class="tier__sep"></span>
+            <span class="tier__model">cabe E4B (~3 GB en 4-bit)</span>
+            <span class="tier__compl">68.1%</span>
+            <span class="tier__lab">post-abliteration · pico</span>
+          </div>
+          <div class="tier">
+            <span class="tier__device">PC con GPU pro / cloud</span>
+            <span class="tier__hw">~32 GB VRAM</span>
+            <span class="tier__sep"></span>
+            <span class="tier__model">cabe 31B (~16 GB en 4-bit)</span>
+            <span class="tier__compl">64.4%</span>
+            <span class="tier__lab">post-abliteration</span>
+          </div>
+        </div>
+
+        <p class="slide__caption">
+          De los tres tamaños testeados, dos corren en celular. El más grande de esos dos
+          (E4B) es <strong>el más vulnerable de toda la familia</strong> — más que el modelo
+          de PC. Y E4B es justo el que un usuario de gama-alta elegiría.
+        </p>
+      </div>
+    </section>
+
+    <!-- 9. Belief update -->
+    <section class="slide" data-slide aria-labelledby="s9-title">
+      <div class="slide__content">
+        <p class="kicker">Lo que cambió mientras testeaba</p>
+        <h2 id="s9-title" class="slide__title">
+          Tres creencias que entré con —<br />
+          y con las que <strong>no</strong> salgo.
+        </h2>
+
+        <div class="belief-list">
+          <article class="belief">
+            <span class="belief__before">Antes</span>
+            <p class="belief__before-txt">
+              "Modelos chicos = más vulnerables."<br />
+              Forma fuerte naive del <em>smaller paradox</em>.
+            </p>
+            <span class="belief__after">Ahora</span>
+            <p class="belief__after-txt">
+              El más roto está en el medio. La vulnerabilidad pico vive donde la
+              geometría de rechazo está más alineada cross-lingual, no donde la
+              capacidad es más débil.
+            </p>
+          </article>
+
+          <article class="belief">
+            <span class="belief__before">Antes</span>
+            <p class="belief__before-txt">
+              "Las recetas públicas de abliteration son aproximaciones ruidosas
+              de lo que lograrían en laboratorio."
+            </p>
+            <span class="belief__after">Ahora</span>
+            <p class="belief__after-txt">
+              <code>huihui-ai</code> alcanza 68% en E4B — el techo que reportaron
+              Wang et al. con extracción propia en modelos 7-14B. La receta
+              pública ya está en producción.
+            </p>
+          </article>
+
+          <article class="belief">
+            <span class="belief__before">Antes</span>
+            <p class="belief__before-txt">
+              "Los idiomas low-resource serán los canarios — los primeros en
+              romperse."
+            </p>
+            <span class="belief__after">Ahora</span>
+            <p class="belief__after-txt">
+              Hindi resiste consistentemente en los 3 tamaños. Los idiomas
+              high-resource Western (DE, PT) son los más rotos en E4B. La
+              dirección del efecto va al revés de lo que esperaba.
+            </p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- 10. Close + scale framing -->
+    <section class="slide slide--cover" data-slide aria-labelledby="s10-title">
+      <div class="slide__content">
+        <p class="kicker">Take-away</p>
+        <h2 id="s10-title" class="slide__title slide__title--xl">
+          El ataque más fuerte<br />
+          vive en el modelo más <span class="t-amber">accesible</span>.
+        </h2>
+
+        <div class="scale-grid">
+          <div class="scale-cell scale-cell--target">
+            <span class="scale-cell__num">~3.000M</span>
+            <span class="scale-cell__lab">
+              smartphones alta gama en el mundo<br />
+              <strong>donde corre el más roto (E4B, 68%)</strong>
+            </span>
+          </div>
+          <span class="scale-cell__divider">vs.</span>
+          <div class="scale-cell">
+            <span class="scale-cell__num">~50M</span>
+            <span class="scale-cell__lab">
+              PCs con GPU profesional<br />
+              donde corre el más resistente de la familia (31B, 64%)
+            </span>
+          </div>
+        </div>
+
+        <p class="scale-question">
+          Si <strong>1 de cada 10.000</strong> usuarios de smartphone alta-gama
+          baja un Gemma 4 E4B abliterado, son <strong>~300.000 instalaciones</strong>
+          donde 7 de cada 10 pedidos dañinos se cumplen. La receta está pública
+          desde el <strong>4 de abril 2026</strong>.
+        </p>
+
+        <ul class="links">
+          <li>
+            <strong>Code:</strong>
+            <a href="https://github.com/gustipardo/multilingual-abliteration-slm-safety" target="_blank" rel="noopener">
+              github.com/gustipardo/multilingual-abliteration-slm-safety
+            </a>
+          </li>
+          <li>
+            <strong>Blog post:</strong> <a href="/">versión completa</a>
+          </li>
+        </ul>
+        <p class="slide__byline">Gracias · BAISH · BlueDot Rapid Grant 2026</p>
+      </div>
+    </section>
+
+    <!-- 11. Preguntas -->
+    <section class="slide slide--cover" data-slide aria-labelledby="s11-title">
+      <div class="slide__content">
+        <p class="kicker">Q&amp;A</p>
+        <h2 id="s11-title" class="slide__title slide__title--xl">
+          ¿<span class="t-amber">Preguntas</span>?
+        </h2>
+        <p class="slide__sub">
+          Estoy especialmente interesado en feedback sobre el ángulo mecanístico
+          y qué otras familias de modelos abiertas valdría la pena testear.
+        </p>
+      </div>
+    </section>
+
+    <!-- 12. Limitations (backup for Q&A) -->
+    <section class="slide" data-slide aria-labelledby="s12-title">
+      <div class="slide__content">
+        <p class="kicker">Limitaciones · backup para Q&amp;A</p>
+        <h2 id="s12-title" class="slide__title">
+          Hallazgo <em>preliminar</em>. Necesita más testing.
+        </h2>
+        <ul class="slide__beats">
+          <li>Una sola familia (Gemma 4 Dense). No probado en otras familias open-weight.</li>
+          <li>Una sola receta (<code>huihui-ai</code>). Una segunda extracción podría desplazar el pico.</li>
+          <li>Un solo juez (Claude Haiku 4.5). Wang et al. usaron WildGuard.</li>
+          <li>Siete idiomas. Faltan idiomas <em>safety-misaligned</em> como Yoruba o Polish.</li>
+          <li>Lectura mecanística post-hoc: la geometría es <em>consistent with</em>, no una predicción confirmada.</li>
+        </ul>
+      </div>
+    </section>
+  </div>
+
+  <!-- HUD -->
+  <nav class="talk-hud" aria-label="Navegación de slides">
+    <button class="hud-btn" data-action="prev" aria-label="Anterior">←</button>
+    <span class="hud-counter">
+      <span id="slide-current">1</span> / <span id="slide-total">12</span>
+    </span>
+    <button class="hud-btn" data-action="next" aria-label="Siguiente">→</button>
+    <button class="hud-btn" data-action="fullscreen" aria-label="Pantalla completa">⛶</button>
+  </nav>
+
+  <p class="talk-hint" aria-hidden="true">
+    Flechas / espacio para navegar · F para pantalla completa · Esc para salir
+  </p>
+
+  <style is:global>
+    /* Talk page overrides BaseLayout's scroll & progress bar */
+    body { overflow: hidden; background: var(--bg-base); }
+    body .progress { display: none; }
+
+    .talk {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+    }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: clamp(var(--space-8), 4vw, var(--space-16));
+      background: var(--bg-base);
+    }
+    .slide.active { display: flex; }
+
+    .slide__content {
+      width: 100%;
+      max-width: var(--content-wide);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-8);
+    }
+    .slide--cover .slide__content { gap: var(--space-10); }
+
+    .kicker {
+      font-family: var(--font-mono);
+      font-size: 0.875rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--amber-500);
+      margin: 0;
+    }
+
+    .slide__title {
+      font-family: var(--font-display);
+      font-weight: 500;
+      font-size: clamp(2rem, 4.5vw, 3.5rem);
+      line-height: 1.15;
+      letter-spacing: -0.01em;
+      color: var(--text-primary);
+      margin: 0;
+    }
+    .slide__title--xl { font-size: clamp(2.5rem, 6vw, 5rem); }
+    .slide__title em {
+      font-style: italic;
+      color: var(--amber-500);
+    }
+    .slide__title strong {
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .slide__sub {
+      font-family: var(--font-body);
+      font-size: clamp(1rem, 1.6vw, 1.375rem);
+      line-height: 1.5;
+      color: var(--text-secondary);
+      margin: 0;
+    }
+    .slide__sub em {
+      font-style: italic;
+      color: var(--amber-500);
+      font-weight: 500;
+    }
+
+    .slide__byline {
+      font-family: var(--font-mono);
+      font-size: 0.875rem;
+      color: var(--text-tertiary);
+      margin: 0;
+    }
+
+    .slide__beats {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-4);
+      font-family: var(--font-body);
+      font-size: clamp(1rem, 1.4vw, 1.25rem);
+      line-height: 1.55;
+      color: var(--text-secondary);
+    }
+    .slide__beats li {
+      padding-left: var(--space-6);
+      position: relative;
+      max-width: 65ch;
+    }
+    .slide__beats li::before {
+      content: "›";
+      position: absolute;
+      left: 0;
+      color: var(--amber-500);
+      font-family: var(--font-mono);
+    }
+    .slide__beats em {
+      font-style: italic;
+      color: var(--amber-500);
+    }
+    .slide__beats strong {
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .slide__caption {
+      font-family: var(--font-mono);
+      font-size: 0.875rem;
+      color: var(--text-tertiary);
+      margin: 0;
+    }
+
+    .slide code {
+      font-family: var(--font-mono);
+      font-size: 0.92em;
+      background: var(--surface-2);
+      padding: 0 0.3em;
+      border-radius: var(--radius-sm);
+      color: var(--text-primary);
+    }
+
+    /* Color helpers */
+    .t-amber { color: var(--amber-500); }
+    .t-sage  { color: var(--sage-300); font-weight: 600; }
+    .t-terra { color: var(--terracota-300); font-weight: 600; }
+
+    /* Setup grid (slide 5) */
+    .slide__grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-5);
+    }
+    @media (min-width: 720px) {
+      .slide__grid { grid-template-columns: repeat(4, 1fr); }
+    }
+    .cell {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+      padding: var(--space-5);
+      background: var(--surface-1);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+    }
+    .cell__num {
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: clamp(2rem, 4vw, 3rem);
+      color: var(--amber-500);
+      line-height: 1;
+    }
+    .cell__lab {
+      font-family: var(--font-body);
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+      line-height: 1.4;
+    }
+
+    /* Result grid (slide 6) */
+    .result-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-5);
+    }
+    .result-cell {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+      padding: var(--space-6);
+      background: var(--surface-1);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      text-align: center;
+    }
+    .result-cell--peak {
+      background: var(--alpha-amber-12);
+      border-color: var(--amber-500);
+      transform: scale(1.05);
+    }
+    .result-cell__name {
+      font-family: var(--font-mono);
+      font-size: 0.95rem;
+      color: var(--text-tertiary);
+      letter-spacing: 0.04em;
+    }
+    .result-cell__num {
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: clamp(2.25rem, 5vw, 3.5rem);
+      color: var(--text-primary);
+      line-height: 1;
+    }
+    .result-cell--peak .result-cell__num { color: var(--amber-500); }
+    .result-cell__lab {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      color: var(--text-tertiary);
+    }
+
+    /* Slide 6 — chart wrapper */
+    .slide-chart {
+      width: 100%;
+    }
+    .slide-chart .size-chart {
+      margin: 0;
+      padding: var(--space-4) var(--space-5);
+      background: var(--surface-1);
+    }
+    .slide-chart .size-chart__header,
+    .slide-chart .size-chart__caption {
+      display: none;
+    }
+
+    /* Slide 7 — mechanism steps */
+    .mech-steps {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+    }
+    .mech-steps li {
+      display: flex;
+      gap: var(--space-4);
+      align-items: flex-start;
+      font-family: var(--font-body);
+      font-size: clamp(0.95rem, 1.3vw, 1.15rem);
+      line-height: 1.5;
+      color: var(--text-secondary);
+      max-width: 72ch;
+    }
+    .mech-steps__num {
+      flex: 0 0 auto;
+      width: 28px;
+      height: 28px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--alpha-amber-12);
+      color: var(--amber-500);
+      border-radius: 50%;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+    .mech-steps em { color: var(--amber-500); font-style: italic; }
+    .mech-caveat {
+      margin-top: var(--space-3);
+      max-width: 72ch;
+      line-height: 1.5;
+      color: var(--text-secondary);
+    }
+    .mech-caveat strong { color: var(--terracota-300); font-weight: 600; }
+    .mech-caveat em { color: var(--text-primary); font-style: italic; }
+
+    /* Slide 8 — hardware tier grid */
+    .tier-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-5);
+    }
+    @media (max-width: 720px) {
+      .tier-grid { grid-template-columns: 1fr; }
+    }
+    .tier {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+      padding: var(--space-5) var(--space-5) var(--space-6);
+      background: var(--surface-1);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      text-align: left;
+    }
+    .tier--peak {
+      background: var(--alpha-amber-12);
+      border-color: var(--amber-500);
+      transform: scale(1.04);
+    }
+    .tier__device {
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: clamp(1.1rem, 1.6vw, 1.35rem);
+      color: var(--text-primary);
+    }
+    .tier__hw {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      color: var(--text-tertiary);
+    }
+    .tier__sep {
+      display: block;
+      width: 32px;
+      height: 1px;
+      background: var(--border-default);
+      margin: var(--space-3) 0;
+    }
+    .tier__model {
+      font-family: var(--font-body);
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+    }
+    .tier__compl {
+      margin-top: var(--space-3);
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: clamp(2rem, 4vw, 3rem);
+      line-height: 1;
+      color: var(--text-primary);
+    }
+    .tier--peak .tier__compl { color: var(--amber-500); }
+    .tier__lab {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      color: var(--text-tertiary);
+    }
+
+    /* Slide 9 — belief update grid */
+    .belief-list {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-5);
+    }
+    @media (max-width: 900px) {
+      .belief-list { grid-template-columns: 1fr; }
+    }
+    .belief {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+      padding: var(--space-5);
+      background: var(--surface-1);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+    }
+    .belief__before,
+    .belief__after {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+    .belief__before { color: var(--terracota-300); }
+    .belief__after  { color: var(--sage-300); margin-top: var(--space-3); }
+    .belief__before-txt,
+    .belief__after-txt {
+      margin: 0;
+      font-family: var(--font-body);
+      font-size: clamp(0.9rem, 1.2vw, 1.05rem);
+      line-height: 1.5;
+    }
+    .belief__before-txt {
+      color: var(--text-tertiary);
+      text-decoration: line-through;
+      text-decoration-color: var(--alpha-terracota-28);
+    }
+    .belief__after-txt { color: var(--text-primary); }
+    .belief em { color: var(--amber-500); font-style: italic; }
+
+    /* Slide 10 — scale framing */
+    .scale-grid {
+      display: flex;
+      gap: var(--space-5);
+      align-items: stretch;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .scale-cell {
+      flex: 1 1 280px;
+      max-width: 380px;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+      padding: var(--space-5);
+      background: var(--surface-1);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      text-align: left;
+    }
+    .scale-cell--target {
+      background: var(--alpha-amber-12);
+      border-color: var(--amber-500);
+    }
+    .scale-cell__num {
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: clamp(2rem, 4.5vw, 3.25rem);
+      line-height: 1;
+      color: var(--text-primary);
+    }
+    .scale-cell--target .scale-cell__num { color: var(--amber-500); }
+    .scale-cell__lab {
+      font-family: var(--font-body);
+      font-size: 0.95rem;
+      line-height: 1.45;
+      color: var(--text-secondary);
+    }
+    .scale-cell__lab strong { color: var(--text-primary); font-weight: 600; }
+    .scale-cell__divider {
+      align-self: center;
+      font-family: var(--font-mono);
+      font-size: 1.2rem;
+      color: var(--text-tertiary);
+    }
+    .scale-question {
+      font-family: var(--font-body);
+      font-size: clamp(1rem, 1.4vw, 1.2rem);
+      line-height: 1.55;
+      color: var(--text-secondary);
+      max-width: 70ch;
+      margin: 0 auto;
+      text-align: center;
+    }
+    .scale-question strong { color: var(--text-primary); font-weight: 600; }
+
+    /* Cosine line (slide 7) */
+    .cosine-line {
+      display: flex;
+      gap: var(--space-6);
+      justify-content: center;
+      align-items: flex-end;
+    }
+    .cos-cell {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--space-2);
+      padding: var(--space-5) var(--space-8);
+      background: var(--surface-1);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+    }
+    .cos-cell--peak {
+      background: var(--alpha-amber-12);
+      border-color: var(--amber-500);
+      transform: scale(1.1);
+    }
+    .cos-cell__name {
+      font-family: var(--font-mono);
+      font-size: 0.875rem;
+      color: var(--text-tertiary);
+    }
+    .cos-cell__num {
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: clamp(1.75rem, 4vw, 2.5rem);
+      color: var(--text-primary);
+    }
+    .cos-cell--peak .cos-cell__num { color: var(--amber-500); }
+
+    /* Links list (slide 10) */
+    .links {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+      font-family: var(--font-body);
+      font-size: clamp(1rem, 1.4vw, 1.25rem);
+      color: var(--text-secondary);
+    }
+    .links a {
+      color: var(--amber-500);
+      text-decoration: none;
+      border-bottom: 1px dashed var(--alpha-amber-24);
+    }
+    .links a:hover {
+      color: var(--amber-300);
+      border-bottom-color: var(--amber-500);
+    }
+
+    /* HUD */
+    .talk-hud {
+      position: fixed;
+      bottom: var(--space-5);
+      right: var(--space-5);
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: var(--space-2) var(--space-3);
+      background: var(--surface-1);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      backdrop-filter: blur(8px);
+      z-index: 50;
+    }
+    .hud-btn {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: var(--radius-sm);
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-size: 1rem;
+      font-family: var(--font-mono);
+      transition: background 120ms, color 120ms, border-color 120ms;
+    }
+    .hud-btn:hover {
+      background: var(--surface-2);
+      color: var(--text-primary);
+      border-color: var(--border-subtle);
+    }
+    .hud-counter {
+      font-family: var(--font-mono);
+      font-size: 0.875rem;
+      color: var(--text-tertiary);
+      min-width: 50px;
+      text-align: center;
+    }
+    .hud-counter #slide-current { color: var(--text-primary); }
+
+    .talk-hint {
+      position: fixed;
+      bottom: var(--space-5);
+      left: var(--space-5);
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--text-tertiary);
+      margin: 0;
+      opacity: 0.7;
+      z-index: 50;
+    }
+    @media (max-width: 640px) {
+      .talk-hint { display: none; }
+    }
+
+    /* View Transitions API — cross-fade with subtle vertical motion */
+    @media (prefers-reduced-motion: no-preference) {
+      ::view-transition-old(root) {
+        animation: 220ms cubic-bezier(0.4, 0, 0.2, 1) both talk-fade-out-up;
+      }
+      ::view-transition-new(root) {
+        animation: 320ms cubic-bezier(0.4, 0, 0.2, 1) both talk-fade-in-up;
+      }
+      @keyframes talk-fade-out-up {
+        to { opacity: 0; transform: translateY(-12px); }
+      }
+      @keyframes talk-fade-in-up {
+        from { opacity: 0; transform: translateY(12px); }
+      }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      ::view-transition-old(root),
+      ::view-transition-new(root) { animation: none; }
+    }
+  </style>
+
+  <script>
+    (() => {
+      const slides = Array.from(document.querySelectorAll('[data-slide]'));
+      const total = slides.length;
+      const currentEl = document.getElementById('slide-current');
+      const totalEl = document.getElementById('slide-total');
+      if (totalEl) totalEl.textContent = String(total);
+
+      let i = 0;
+
+      const clamp = (n: number) => Math.max(0, Math.min(total - 1, n));
+
+      function readHash(): number {
+        const m = location.hash.match(/^#slide-(\d+)$/);
+        if (!m) return 0;
+        return clamp(parseInt(m[1], 10) - 1);
+      }
+
+      function paint(n: number) {
+        slides[i].classList.remove('active');
+        slides[n].classList.add('active');
+        i = n;
+        if (currentEl) currentEl.textContent = String(i + 1);
+        history.replaceState(null, '', `#slide-${i + 1}`);
+      }
+
+      function go(n: number) {
+        n = clamp(n);
+        if (n === i) return;
+        // @ts-ignore — startViewTransition is widely supported but not in all TS lib versions
+        if (typeof document.startViewTransition === 'function') {
+          // @ts-ignore
+          document.startViewTransition(() => paint(n));
+        } else {
+          paint(n);
+        }
+      }
+
+      // Initialize from hash if present
+      const startIdx = readHash();
+      if (startIdx !== 0) {
+        slides.forEach((s, idx) => s.classList.toggle('active', idx === startIdx));
+        i = startIdx;
+        if (currentEl) currentEl.textContent = String(i + 1);
+      }
+
+      // Keyboard nav
+      document.addEventListener('keydown', (e) => {
+        const target = e.target as HTMLElement | null;
+        if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement) return;
+        switch (e.key) {
+          case 'ArrowRight':
+          case ' ':
+          case 'PageDown':
+          case 'l':
+          case 'L':
+          case 'n':
+          case 'N':
+            e.preventDefault();
+            go(i + 1);
+            break;
+          case 'ArrowLeft':
+          case 'PageUp':
+          case 'h':
+          case 'H':
+          case 'p':
+          case 'P':
+            e.preventDefault();
+            go(i - 1);
+            break;
+          case 'Home':
+            e.preventDefault();
+            go(0);
+            break;
+          case 'End':
+            e.preventDefault();
+            go(total - 1);
+            break;
+          case 'f':
+          case 'F':
+            if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+            else document.exitFullscreen();
+            break;
+        }
+      });
+
+      // HUD buttons
+      document.querySelector('[data-action="prev"]')?.addEventListener('click', () => go(i - 1));
+      document.querySelector('[data-action="next"]')?.addEventListener('click', () => go(i + 1));
+      document.querySelector('[data-action="fullscreen"]')?.addEventListener('click', () => {
+        if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+        else document.exitFullscreen();
+      });
+
+      // External hash changes (typing #slide-5 in the URL bar)
+      window.addEventListener('hashchange', () => {
+        const n = readHash();
+        if (n !== i) go(n);
+      });
+    })();
+  </script>
+</BaseLayout>
