@@ -1,4 +1,6 @@
 ---
+import SizeVsCompliance from "./SizeVsCompliance.astro";
+
 const e2bRows = [
   { lang: "EN", base: 4,  abl: 42 },
   { lang: "ES", base: 7,  abl: 47 },
@@ -85,6 +87,8 @@ const sign = (v: number) => (v >= 0 ? "+" : "");
         el mecanismo.
       </p>
     </div>
+
+    <SizeVsCompliance />
 
     <h3 style="margin-top: var(--space-12);">Comparación entre tamaños · medias por idioma</h3>
 

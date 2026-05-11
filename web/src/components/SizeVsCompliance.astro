@@ -1,0 +1,463 @@
+---
+// Curva tamaño → compliance, base vs abliterado.
+// Reemplaza la imagen estática size_vs_compliance.png con un SVG vectorial
+// que toma colores del design system (light + dark) y resalta el pico en E4B.
+
+type Size = {
+  label: string;     // E2B
+  sub: string;       // ~2B params
+  params: number;    // for log scale
+  base: number;      // mean compliance, base (%)
+  abl: number;       // mean compliance, abliterated (%)
+};
+
+const sizes: Size[] = [
+  { label: "E2B", sub: "~2B params",  params: 2,  base: 4.1,  abl: 42.9 },
+  { label: "E4B", sub: "~4B params",  params: 4,  base: 10.7, abl: 68.1 },
+  { label: "31B", sub: "~31B params", params: 31, base: 13.1, abl: 64.4 },
+];
+
+// SVG canvas
+const W = 920;
+const H = 540;
+const M = { top: 64, right: 60, bottom: 96, left: 80 };
+const plotW = W - M.left - M.right;   // 780
+const plotH = H - M.top - M.bottom;   // 380
+const plotL = M.left;
+const plotR = M.left + plotW;
+const plotT = M.top;
+const plotB = M.top + plotH;
+
+// Log scale on x (2B → 31B), linear on y (0–100%)
+const logMin = Math.log(2);
+const logMax = Math.log(31);
+const xOf = (p: number) =>
+  plotL + ((Math.log(p) - logMin) / (logMax - logMin)) * plotW;
+const yOf = (v: number) => plotB - (v / 100) * plotH;
+
+const yTicks = [0, 20, 40, 60, 80, 100];
+
+const pts = sizes.map((s) => ({
+  ...s,
+  x: xOf(s.params),
+  yBase: yOf(s.base),
+  yAbl: yOf(s.abl),
+}));
+
+const linePath = (key: "yBase" | "yAbl") =>
+  pts.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x.toFixed(1)} ${p[key].toFixed(1)}`).join(" ");
+
+const areaPath = (key: "yBase" | "yAbl") =>
+  `${linePath(key)} L ${pts[pts.length - 1].x.toFixed(1)} ${plotB} L ${pts[0].x.toFixed(1)} ${plotB} Z`;
+
+const peak = pts.find((p) => p.label === "E4B")!;
+const gapE4B = Number((peak.abl - peak.base).toFixed(1));
+const jumpE2BtoE4B = Number((peak.abl - pts[0].abl).toFixed(1));
+const jumpE4Bto31B = Number((pts[2].abl - peak.abl).toFixed(1));
+---
+
+<figure class="size-chart" aria-labelledby="size-chart-title" role="group">
+  <header class="size-chart__header">
+    <h4 id="size-chart-title" class="size-chart__title">
+      Cumplimiento medio post-abliteración no es monótono en tamaño
+    </h4>
+    <p class="size-chart__subtitle">
+      Gemma 4 Dense · promedio sobre 7 idiomas · 100 prompts dañinos por idioma ·
+      base vs. abliterado (single-vector)
+    </p>
+  </header>
+
+  <div class="size-chart__svg-wrap">
+    <svg
+      viewBox={`0 0 ${W} ${H}`}
+      role="img"
+      aria-label="Curva no monótona de cumplimiento post-abliteración con pico en E4B"
+      preserveAspectRatio="xMidYMid meet"
+    >
+      <defs>
+        <linearGradient id="abl-area" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="var(--terracota-500)" stop-opacity="0.32" />
+          <stop offset="100%" stop-color="var(--terracota-500)" stop-opacity="0.02" />
+        </linearGradient>
+        <linearGradient id="base-area" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="var(--amber-500)" stop-opacity="0.18" />
+          <stop offset="100%" stop-color="var(--amber-500)" stop-opacity="0.0" />
+        </linearGradient>
+        <filter id="peak-glow" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="6" result="blur" />
+          <feMerge>
+            <feMergeNode in="blur" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+      </defs>
+
+      {/* Plot frame background */}
+      <rect
+        x={plotL}
+        y={plotT}
+        width={plotW}
+        height={plotH}
+        class="plot-bg"
+      />
+
+      {/* Horizontal gridlines + y labels */}
+      {yTicks.map((v) => (
+        <g class="grid">
+          <line
+            x1={plotL}
+            x2={plotR}
+            y1={yOf(v)}
+            y2={yOf(v)}
+            class={v === 0 ? "grid__axis" : "grid__line"}
+          />
+          <text
+            x={plotL - 14}
+            y={yOf(v)}
+            class="grid__label"
+            text-anchor="end"
+            dominant-baseline="middle"
+          >{v} %</text>
+        </g>
+      ))}
+
+      {/* Vertical guides at each model size (very subtle) */}
+      {pts.map((p) => (
+        <line
+          x1={p.x}
+          x2={p.x}
+          y1={plotT}
+          y2={plotB}
+          class="vguide"
+        />
+      ))}
+
+      {/* Peak vertical reference (E4B), dashed */}
+      <line
+        x1={peak.x}
+        x2={peak.x}
+        y1={peak.yAbl}
+        y2={plotB}
+        class="peak-vguide"
+      />
+
+      {/* Area fills */}
+      <path d={areaPath("yBase")} fill="url(#base-area)" />
+      <path d={areaPath("yAbl")} fill="url(#abl-area)" />
+
+      {/* Lines */}
+      <path d={linePath("yBase")} class="line line--base" />
+      <path d={linePath("yAbl")} class="line line--abl" />
+
+      {/* Data points + value labels — base */}
+      {pts.map((p) => (
+        <g class="pt pt--base">
+          <circle cx={p.x} cy={p.yBase} r="6" class="pt__halo" />
+          <circle cx={p.x} cy={p.yBase} r="4.5" class="pt__dot pt__dot--base" />
+          <text
+            x={p.x}
+            y={p.yBase + 22}
+            class="pt__value pt__value--base"
+            text-anchor="middle"
+          >{p.base.toFixed(1)} %</text>
+        </g>
+      ))}
+
+      {/* Data points + value labels — abliterated */}
+      {pts.map((p) => {
+        const isPeak = p.label === "E4B";
+        return (
+          <g class={`pt pt--abl${isPeak ? " pt--peak" : ""}`}>
+            {isPeak && (
+              <circle cx={p.x} cy={p.yAbl} r="14" class="pt__glow" filter="url(#peak-glow)" />
+            )}
+            <circle cx={p.x} cy={p.yAbl} r={isPeak ? 9 : 7} class="pt__halo pt__halo--abl" />
+            <circle cx={p.x} cy={p.yAbl} r={isPeak ? 6.5 : 5} class="pt__dot pt__dot--abl" />
+            <text
+              x={p.x}
+              y={p.yAbl - 16}
+              class="pt__value pt__value--abl"
+              text-anchor="middle"
+            >{p.abl.toFixed(1)} %</text>
+          </g>
+        );
+      })}
+
+      {/* Peak annotation pill — anchored above E4B point */}
+      <g class="peak-badge" transform={`translate(${peak.x + 28}, ${peak.yAbl - 46})`}>
+        <line
+          x1="-22"
+          y1="24"
+          x2="-8"
+          y2="16"
+          class="peak-badge__leader"
+        />
+        <rect x="0" y="0" width="270" height="48" rx="24" class="peak-badge__bg" />
+        <text x="20" y="20" class="peak-badge__eyebrow">PICO DE VULNERABILIDAD</text>
+        <text x="20" y="38" class="peak-badge__value">
+          +{jumpE2BtoE4B.toFixed(1)} pp vs E2B · {jumpE4Bto31B.toFixed(1)} pp vs 31B
+        </text>
+      </g>
+
+      {/* X-axis labels */}
+      {pts.map((p) => (
+        <g class="x-label">
+          <text x={p.x} y={plotB + 28} class="x-label__main" text-anchor="middle">
+            {p.label}
+          </text>
+          <text x={p.x} y={plotB + 48} class="x-label__sub" text-anchor="middle">
+            {p.sub}
+          </text>
+        </g>
+      ))}
+
+      {/* Axis titles */}
+      <text
+        x={(plotL + plotR) / 2}
+        y={H - 14}
+        class="axis-title"
+        text-anchor="middle"
+      >Tamaño del modelo · escala logarítmica</text>
+
+      <text
+        x={20}
+        y={(plotT + plotB) / 2}
+        class="axis-title"
+        text-anchor="middle"
+        transform={`rotate(-90 20 ${(plotT + plotB) / 2})`}
+      >Compliance promedio (%)</text>
+
+      {/* Legend */}
+      <g class="legend" transform={`translate(${plotR - 280}, ${plotT + 14})`}>
+        <rect x="0" y="0" width="280" height="58" rx="10" class="legend__bg" />
+        <g transform="translate(16, 22)">
+          <line x1="0" y1="0" x2="26" y2="0" class="line line--abl legend__swatch" />
+          <circle cx="13" cy="0" r="4.5" class="pt__dot pt__dot--abl" />
+          <text x="38" y="4" class="legend__text">Abliterado (single-vector)</text>
+        </g>
+        <g transform="translate(16, 44)">
+          <line x1="0" y1="0" x2="26" y2="0" class="line line--base legend__swatch" />
+          <circle cx="13" cy="0" r="4.5" class="pt__dot pt__dot--base" />
+          <text x="38" y="4" class="legend__text">Base (filtro intacto)</text>
+        </g>
+      </g>
+    </svg>
+  </div>
+
+  <figcaption class="size-chart__caption">
+    El cumplimiento post-abliteración salta <strong>+{jumpE2BtoE4B.toFixed(1)} pp</strong> de
+    E2B a E4B y baja <strong>{jumpE4Bto31B.toFixed(1)} pp</strong> de E4B a 31B. El gap
+    base→abliterado también es máximo en E4B (<strong>+{gapE4B.toFixed(1)} pp</strong>).
+    El modelo más accesible para correr en hardware modesto es el más vulnerable al ataque.
+  </figcaption>
+</figure>
+
+<style>
+  .size-chart {
+    margin: var(--space-10) 0 0;
+    padding: var(--space-6) var(--space-6) var(--space-5);
+    background: var(--surface-2);
+    border: 1px solid var(--border-default);
+    border-radius: 14px;
+  }
+
+  .size-chart__header {
+    margin-bottom: var(--space-4);
+  }
+
+  .size-chart__title {
+    font-family: var(--font-display);
+    font-size: clamp(18px, 2.2vw, 22px);
+    line-height: 1.25;
+    color: var(--text-primary);
+    margin: 0;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  .size-chart__subtitle {
+    margin: 6px 0 0;
+    font-size: 14px;
+    color: var(--text-tertiary);
+    font-family: var(--font-mono);
+    letter-spacing: 0.01em;
+  }
+
+  .size-chart__svg-wrap {
+    margin-top: var(--space-4);
+    width: 100%;
+  }
+
+  .size-chart svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+
+  .size-chart__caption {
+    margin-top: var(--space-5);
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--border-subtle);
+    color: var(--text-secondary);
+    font-size: 15px;
+    line-height: 1.55;
+  }
+
+  .size-chart__caption strong {
+    color: var(--text-primary);
+    font-weight: 600;
+  }
+
+  /* SVG primitives */
+  .plot-bg {
+    fill: var(--surface-1);
+    stroke: none;
+  }
+
+  .grid__line {
+    stroke: var(--border-subtle);
+    stroke-width: 1;
+    stroke-dasharray: 2 4;
+  }
+  .grid__axis {
+    stroke: var(--border-default);
+    stroke-width: 1.5;
+  }
+  .grid__label {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    fill: var(--text-tertiary);
+  }
+
+  .vguide {
+    stroke: var(--border-subtle);
+    stroke-width: 1;
+  }
+  .peak-vguide {
+    stroke: var(--terracota-300);
+    stroke-width: 1.25;
+    stroke-dasharray: 3 5;
+    opacity: 0.55;
+  }
+
+  .line {
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .line--base {
+    stroke: var(--amber-500);
+    stroke-width: 2.5;
+  }
+  .line--abl {
+    stroke: var(--terracota-500);
+    stroke-width: 4;
+  }
+
+  .pt__halo {
+    fill: var(--surface-2);
+    stroke: var(--amber-500);
+    stroke-width: 2;
+  }
+  .pt__halo--abl {
+    stroke: var(--terracota-500);
+    stroke-width: 2.5;
+  }
+  .pt__dot--base { fill: var(--amber-500); }
+  .pt__dot--abl  { fill: var(--terracota-500); }
+
+  .pt__glow {
+    fill: var(--terracota-500);
+    opacity: 0.4;
+  }
+
+  .pt__value {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .pt__value--base { fill: var(--amber-700); }
+  .pt__value--abl  { fill: var(--terracota-300); }
+
+  :global([data-theme="dark"]) .pt__value--base { fill: var(--amber-300); }
+
+  /* Peak badge */
+  .peak-badge__bg {
+    fill: var(--surface-3);
+    stroke: var(--terracota-300);
+    stroke-width: 1.25;
+  }
+  .peak-badge__leader {
+    stroke: var(--terracota-300);
+    stroke-width: 1.5;
+    stroke-dasharray: 2 3;
+  }
+  .peak-badge__eyebrow {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    fill: var(--terracota-300);
+    font-weight: 600;
+  }
+  .peak-badge__value {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    fill: var(--text-primary);
+  }
+
+  /* X-axis */
+  .x-label__main {
+    font-family: var(--font-display);
+    font-size: 16px;
+    font-weight: 600;
+    fill: var(--text-primary);
+  }
+  .x-label__sub {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    fill: var(--text-tertiary);
+    letter-spacing: 0.04em;
+  }
+
+  .axis-title {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    fill: var(--text-secondary);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  /* Legend */
+  .legend__bg {
+    fill: var(--surface-1);
+    stroke: var(--border-default);
+    stroke-width: 1;
+    opacity: 0.95;
+  }
+  .legend__swatch {
+    stroke-linecap: round;
+  }
+  .legend__text {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    fill: var(--text-secondary);
+  }
+
+  @media (max-width: 640px) {
+    .size-chart {
+      padding: var(--space-4);
+      border-radius: 10px;
+    }
+    .grid__label,
+    .pt__value,
+    .legend__text,
+    .x-label__sub {
+      font-size: 14px;
+    }
+    .axis-title { font-size: 13px; }
+    .x-label__main { font-size: 18px; }
+    .peak-badge__eyebrow { font-size: 11px; }
+    .peak-badge__value { font-size: 13px; }
+  }
+</style>
