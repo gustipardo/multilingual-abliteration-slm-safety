@@ -1,0 +1,199 @@
+---
+interface Props {
+  lang?: "en" | "es";
+  current?: "home" | "blog" | "talk";
+}
+const { lang = "en", current = "home" } = Astro.props;
+
+const homeHref = lang === "es" ? "/es" : "/";
+const otherLangHref = lang === "es" ? "/" : "/es";
+const otherLangCode = lang === "es" ? "EN" : "ES";
+const otherLangLabel = lang === "es" ? "English" : "Español";
+---
+
+<header class="navbar" data-current={current}>
+  <div class="navbar__inner">
+    <a href={homeHref} class="navbar__brand" aria-label="Home">
+      <span class="navbar__brand-dot" aria-hidden="true"></span>
+      <span class="navbar__brand-text">
+        <span data-lang="en">Democratization paradox</span>
+        <span data-lang="es">Paradoja de la democratización</span>
+      </span>
+    </a>
+
+    <nav class="navbar__links" aria-label="Site navigation">
+      <a
+        href={homeHref}
+        class={`navbar__link${current === "home" ? " navbar__link--active" : ""}`}
+        aria-current={current === "home" ? "page" : undefined}
+      >
+        <span data-lang="en">Home</span>
+        <span data-lang="es">Inicio</span>
+      </a>
+      <a
+        href="/blog-post"
+        class={`navbar__link${current === "blog" ? " navbar__link--active" : ""}`}
+        aria-current={current === "blog" ? "page" : undefined}
+      >
+        <span data-lang="en">Blog post</span>
+        <span data-lang="es">Blog técnico</span>
+        <span class="navbar__link-tag">EN</span>
+      </a>
+      <a
+        href="/talk"
+        class={`navbar__link${current === "talk" ? " navbar__link--active" : ""}`}
+        aria-current={current === "talk" ? "page" : undefined}
+      >
+        <span data-lang="en">Talk</span>
+        <span data-lang="es">Charla</span>
+        <span class="navbar__link-tag">ES</span>
+      </a>
+    </nav>
+
+    <a
+      href={otherLangHref}
+      class="navbar__lang"
+      aria-label={`Switch to ${otherLangLabel}`}
+      title={`Switch to ${otherLangLabel}`}
+    >
+      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="9" />
+        <path d="M3 12h18" />
+        <path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18" />
+      </svg>
+      <span class="navbar__lang-code">{otherLangCode}</span>
+    </a>
+  </div>
+</header>
+
+<style>
+  .navbar {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    background: color-mix(in srgb, var(--bg-base) 92%, transparent);
+    backdrop-filter: saturate(140%) blur(10px);
+    -webkit-backdrop-filter: saturate(140%) blur(10px);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  .navbar__inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 12px 24px;
+    display: flex;
+    align-items: center;
+    gap: var(--space-6, 24px);
+  }
+
+  .navbar__brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    color: var(--text-primary);
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: 15px;
+    letter-spacing: -0.005em;
+    flex-shrink: 0;
+  }
+
+  .navbar__brand-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--amber-500);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--amber-500) 18%, transparent);
+  }
+
+  .navbar__brand-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 22ch;
+  }
+
+  .navbar__links {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    margin-left: auto;
+  }
+
+  .navbar__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 12px;
+    border-radius: 8px;
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-family: var(--font-body);
+    font-size: 14px;
+    font-weight: 500;
+    transition: background 120ms ease, color 120ms ease;
+  }
+
+  .navbar__link:hover {
+    background: var(--surface-2);
+    color: var(--text-primary);
+  }
+
+  .navbar__link--active {
+    color: var(--text-primary);
+    background: var(--surface-2);
+  }
+
+  .navbar__link-tag {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    padding: 1px 5px;
+    border-radius: 4px;
+    background: var(--surface-3);
+    color: var(--text-tertiary);
+  }
+
+  .navbar__lang {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    border: 1px solid var(--border-default);
+    border-radius: 999px;
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    transition: background 120ms, color 120ms, border-color 120ms;
+  }
+
+  .navbar__lang:hover {
+    background: var(--surface-2);
+    color: var(--text-primary);
+    border-color: var(--border-strong);
+  }
+
+  .navbar__lang-code {
+    font-weight: 600;
+  }
+
+  @media (max-width: 640px) {
+    .navbar__inner {
+      gap: 12px;
+      padding: 10px 16px;
+    }
+    .navbar__brand-text {
+      display: none;
+    }
+    .navbar__link {
+      padding: 6px 8px;
+      font-size: 13px;
+    }
+    .navbar__link-tag {
+      display: none;
+    }
+  }
+</style>

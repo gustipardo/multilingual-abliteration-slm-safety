@@ -3,52 +3,111 @@
 
 <section class="section" id="problema">
   <div class="container container--narrow">
-    <div class="section-number">02 — El problema</div>
-    <h2>Qué pasó en abril de 2026</h2>
+    <div class="section-number">
+      <span data-lang="en">02 — The problem</span>
+      <span data-lang="es">02 — El problema</span>
+    </div>
+    <h2>
+      <span data-lang="en">What happened in April 2026</span>
+      <span data-lang="es">Qué pasó en abril de 2026</span>
+    </h2>
 
     <p class="lead" style="margin-top: var(--space-6);">
-      Google lanzó <strong>Gemma 4</strong>, una familia de modelos de lenguaje.
-      Lo importante: las versiones más chicas corren en un celular común y hablan más de 140 idiomas.
+      <span data-lang="en">
+        Google released <strong>Gemma 4</strong>, a family of language models.
+        The key fact: the smallest versions run on a standard phone and speak over 140 languages.
+      </span>
+      <span data-lang="es">
+        Google lanzó <strong>Gemma 4</strong>, una familia de modelos de lenguaje.
+        Lo importante: las versiones más chicas corren en un celular común y hablan más de 140 idiomas.
+      </span>
     </p>
 
     <p style="margin-top: var(--space-6);">
-      Dentro de las <strong>48 horas</strong> del lanzamiento, alguien subió a internet una versión
-      modificada de ese modelo. La modificación le sacó la capacidad de negarse a pedidos dañinos.
-      Cualquier persona puede bajarla y correrla en su teléfono, en cualquiera de esos 140 idiomas,
-      sin ningún filtro de seguridad.
+      <span data-lang="en">
+        Within <strong>48 hours</strong> of release, someone uploaded a modified version of that model
+        to the internet. The modification stripped its ability to refuse harmful requests.
+        Anyone can download it and run it on their phone, in any of those 140 languages,
+        with no safety filter.
+      </span>
+      <span data-lang="es">
+        Dentro de las <strong>48 horas</strong> del lanzamiento, alguien subió a internet una versión
+        modificada de ese modelo. La modificación le sacó la capacidad de negarse a pedidos dañinos.
+        Cualquier persona puede bajarla y correrla en su teléfono, en cualquiera de esos 140 idiomas,
+        sin ningún filtro de seguridad.
+      </span>
     </p>
 
     <div class="concept">
-      <span class="concept__term">Concepto clave</span>
+      <span class="concept__term">
+        <span data-lang="en">Key concept</span>
+        <span data-lang="es">Concepto clave</span>
+      </span>
       <p class="concept__plain">
-        Cuando una IA se niega a responder un pedido dañino ("no te voy a explicar cómo hacer X"),
-        esa capacidad de negarse vive en una parte específica del modelo. Hay una técnica matemática
-        que permite localizar esa parte y removerla — dejando al modelo técnicamente igual,
-        pero sin frenos. Esa técnica se llama <span class="concept__name">abliteration</span>.
+        <span data-lang="en">
+          When an AI refuses a harmful request ("I won't explain how to do X"),
+          that refusal capability lives in a specific part of the model. There is a mathematical
+          technique that finds that part and removes it — leaving the model technically intact
+          but with no brakes. That technique is called <span class="concept__name">abliteration</span>.
+        </span>
+        <span data-lang="es">
+          Cuando una IA se niega a responder un pedido dañino ("no te voy a explicar cómo hacer X"),
+          esa capacidad de negarse vive en una parte específica del modelo. Hay una técnica matemática
+          que permite localizar esa parte y removerla — dejando al modelo técnicamente igual,
+          pero sin frenos. Esa técnica se llama <span class="concept__name">abliteration</span>.
+        </span>
       </p>
     </div>
 
-    <h3 style="margin-top: var(--space-16);">Por qué esto es distinto a otras fugas de seguridad</h3>
+    <h3 style="margin-top: var(--space-16);">
+      <span data-lang="en">Why this differs from other safety failures</span>
+      <span data-lang="es">Por qué esto es distinto a otras fugas de seguridad</span>
+    </h3>
 
     <p style="margin-top: var(--space-4);">
-      No es un <em>jailbreak</em> (un truco para engañar al modelo con un prompt creativo).
-      No es un prompt injection. Es una modificación <strong>permanente</strong> del modelo:
-      los pesos de la red neuronal quedan alterados, y el archivo resultante queda en HuggingFace
-      disponible para cualquiera.
+      <span data-lang="en">
+        It is not a <em>jailbreak</em> (a clever prompt that tricks the model).
+        It is not a prompt injection. It is a <strong>permanent</strong> modification of the model:
+        the weights of the neural network are altered, and the resulting file sits on HuggingFace
+        for anyone to grab.
+      </span>
+      <span data-lang="es">
+        No es un <em>jailbreak</em> (un truco para engañar al modelo con un prompt creativo).
+        No es un prompt injection. Es una modificación <strong>permanente</strong> del modelo:
+        los pesos de la red neuronal quedan alterados, y el archivo resultante queda en HuggingFace
+        disponible para cualquiera.
+      </span>
     </p>
 
     <p style="margin-top: var(--space-4);">
-      Una vez que ese archivo está publicado, el filtro no vuelve.
-      No hay parche. No hay actualización que lo arregle para quien ya lo bajó.
+      <span data-lang="en">
+        Once that file is published, the filter does not come back.
+        There is no patch. There is no update that fixes it for whoever already downloaded it.
+      </span>
+      <span data-lang="es">
+        Una vez que ese archivo está publicado, el filtro no vuelve.
+        No hay parche. No hay actualización que lo arregle para quien ya lo bajó.
+      </span>
     </p>
 
     <div class="callout callout--warning">
-      <span class="callout__label">⚠ Contexto</span>
+      <span class="callout__label">
+        <span data-lang="en">⚠ Context</span>
+        <span data-lang="es">⚠ Contexto</span>
+      </span>
       <p>
-        Antes de Gemma 4, la discusión sobre modelos abliterados era más académica.
-        Corrían en servidores con GPUs caras. Ahora cualquier persona con un teléfono puede tener
-        una IA sin filtros, respondiendo en árabe, hindi, español o chino.
-        Ese cambio de escala es el que motiva esta investigación.
+        <span data-lang="en">
+          Before Gemma 4, the discussion of abliterated models was mostly academic.
+          They ran on servers with expensive GPUs. Now anyone with a phone can carry around
+          an AI with no filter, answering in Arabic, Hindi, Spanish or Chinese.
+          That shift in scale is what motivates this research.
+        </span>
+        <span data-lang="es">
+          Antes de Gemma 4, la discusión sobre modelos abliterados era más académica.
+          Corrían en servidores con GPUs caras. Ahora cualquier persona con un teléfono puede tener
+          una IA sin filtros, respondiendo en árabe, hindi, español o chino.
+          Ese cambio de escala es el que motiva esta investigación.
+        </span>
       </p>
     </div>
   </div>

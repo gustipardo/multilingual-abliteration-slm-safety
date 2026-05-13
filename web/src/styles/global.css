@@ -876,3 +876,16 @@ html[data-theme="dark"] .theme-toggle__icon--moon { display: none; }
     scroll-behavior: auto !important;
   }
 }
+
+/* ==========================================================================
+   Bilingual content (inline EN/ES)
+   Each translatable text node is wrapped in <span data-lang="en">…</span>
+   <span data-lang="es">…</span>. The active language is set on <html lang>
+   by the page route (/ → en, /es → es).
+   ========================================================================== */
+
+html[lang="en"] [data-lang="es"],
+html[lang="es"] [data-lang="en"] {
+  display: none !important;
+}
+

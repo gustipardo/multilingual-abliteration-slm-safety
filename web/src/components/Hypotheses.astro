@@ -1,52 +1,83 @@
 ---
+const hypos = [
+  {
+    en: {
+      h: "Breaking the English filter also breaks the filter in the other six languages.",
+      p: "Even though the technique only uses English examples, the mathematical direction it removes from the model is shared across languages. We expect more compliance with harmful requests in Spanish, Chinese, Arabic, Hindi and Portuguese after abliteration. (Replicates Wang et al. 2025, extended to Gemma 4.)",
+    },
+    es: {
+      h: "Romper el filtro en inglés rompe también el filtro en los otros seis idiomas.",
+      p: "Aunque la técnica use solo ejemplos en inglés, la dirección matemática que se remueve del modelo está compartida entre idiomas. Esperamos ver más cumplimiento de pedidos dañinos en español, chino, árabe, hindi y portugués después de la abliteration. (Replicación de Wang et al. 2025 extendida a Gemma 4.)",
+    },
+  },
+  {
+    en: {
+      h: "The separation between harmful and harmless prompts is worse in smaller models.",
+      p: "When you probe the model internally, harmful and harmless requests show up as two clouds in the model's representation space. In large models those clouds are well separated. The bet is that in smaller models the clouds are more mixed — and that is why they are easier to break.",
+    },
+    es: {
+      h: "La separación entre prompts dañinos y prompts inofensivos es peor en modelos chicos.",
+      p: "Cuando se analiza el modelo internamente, los pedidos dañinos y los inofensivos aparecen agrupados en dos \"nubes\" dentro del espacio matemático del modelo. En modelos grandes, esas nubes están bien separadas. La apuesta es que en los modelos chicos las nubes están más mezcladas — y por eso cuesta menos romperles la seguridad.",
+    },
+  },
+  {
+    en: {
+      h: "Compliance with harmful requests after abliteration is higher in smaller models.",
+      p: "This is the central hypothesis of the <em>democratization paradox</em>. If the 2B-parameter model complies with 90% of harmful requests after abliteration and the 31B complies with only 40%, we have strong evidence. If there is no difference across sizes, the hypothesis falls.",
+    },
+    es: {
+      h: "El cumplimiento de pedidos dañinos después de la abliteration es mayor en modelos chicos.",
+      p: "Esta es la hipótesis central del <em>democratization paradox</em>. Si el modelo de 2B parámetros cumple el 90% de los pedidos dañinos después de la abliteration y el modelo de 31B cumple solo el 40%, tenemos evidencia fuerte. Si no hay diferencia entre tamaños, la hipótesis se cae.",
+    },
+  },
+  {
+    en: {
+      h: "Languages with less pretraining data (Arabic, Hindi) are left worse protected than higher-coverage ones (Spanish, Portuguese).",
+      p: "Models are trained on more data in \"popular\" web languages. Languages with less online presence inherit a weaker safety filter from the start, and abliteration exposes them more. This is a separate hypothesis that can be confirmed or falsified independently of #3.",
+    },
+    es: {
+      h: "Los idiomas con menos datos en el preentrenamiento (árabe, hindi) quedan peor protegidos que los de mayor cobertura (español, portugués).",
+      p: "Los modelos se entrenan con más datos en idiomas \"populares\" en internet. Idiomas con menos presencia online heredan un filtro de seguridad más débil desde el arranque, y la abliteration los expone más. Es una hipótesis separada que puede confirmarse o fallarse independientemente de la #3.",
+    },
+  },
+];
 ---
 
 <section class="section" id="hipotesis">
   <div class="container container--narrow">
-    <div class="section-number">04 — Hipótesis</div>
-    <h2>Las cuatro apuestas</h2>
+    <div class="section-number">
+      <span data-lang="en">04 — Hypotheses</span>
+      <span data-lang="es">04 — Hipótesis</span>
+    </div>
+    <h2>
+      <span data-lang="en">The four bets</span>
+      <span data-lang="es">Las cuatro apuestas</span>
+    </h2>
 
     <p class="lead" style="margin-top: var(--space-6);">
-      Cada una de estas afirmaciones se puede confirmar o rechazar con los datos.
-      No es un listado ambiguo: son predicciones concretas.
+      <span data-lang="en">
+        Each of these statements can be confirmed or rejected by the data.
+        This is not an ambiguous list — they are concrete predictions.
+      </span>
+      <span data-lang="es">
+        Cada una de estas afirmaciones se puede confirmar o rechazar con los datos.
+        No es un listado ambiguo: son predicciones concretas.
+      </span>
     </p>
 
     <ol class="list-numbered" style="margin-top: var(--space-10);">
-      <li>
-        <h4>Romper el filtro en inglés rompe también el filtro en los otros seis idiomas.</h4>
-        <p class="muted">
-          Aunque la técnica use solo ejemplos en inglés, la dirección matemática que se remueve
-          del modelo está compartida entre idiomas. Esperamos ver más cumplimiento de pedidos dañinos
-          en español, chino, árabe, hindi y portugués después de la abliteration.
-          (Replicación de Wang et al. 2025 extendida a Gemma 4.)
-        </p>
-      </li>
-      <li>
-        <h4>La separación entre prompts dañinos y prompts inofensivos es peor en modelos chicos.</h4>
-        <p class="muted">
-          Cuando se analiza el modelo internamente, los pedidos dañinos y los inofensivos
-          aparecen agrupados en dos "nubes" dentro del espacio matemático del modelo.
-          En modelos grandes, esas nubes están bien separadas. La apuesta es que en los modelos chicos
-          las nubes están más mezcladas — y por eso cuesta menos romperles la seguridad.
-        </p>
-      </li>
-      <li>
-        <h4>El cumplimiento de pedidos dañinos después de la abliteration es mayor en modelos chicos.</h4>
-        <p class="muted">
-          Esta es la hipótesis central del <em>democratization paradox</em>. Si el modelo de 2B parámetros
-          cumple el 90% de los pedidos dañinos después de la abliteration y el modelo de 31B cumple solo el 40%,
-          tenemos evidencia fuerte. Si no hay diferencia entre tamaños, la hipótesis se cae.
-        </p>
-      </li>
-      <li>
-        <h4>Los idiomas con menos recursos (árabe, hindi) quedan peor protegidos que los de alto recurso (español, portugués).</h4>
-        <p class="muted">
-          Los modelos se entrenan con más datos en idiomas "populares" en internet. Idiomas con menos
-          presencia online heredan un filtro de seguridad más débil desde el arranque,
-          y la abliteration los expone más. Es una hipótesis separada que puede confirmarse o fallarse
-          independientemente de la #3.
-        </p>
-      </li>
+      {hypos.map((h) => (
+        <li>
+          <h4>
+            <span data-lang="en" set:html={h.en.h} />
+            <span data-lang="es" set:html={h.es.h} />
+          </h4>
+          <p class="muted">
+            <span data-lang="en" set:html={h.en.p} />
+            <span data-lang="es" set:html={h.es.p} />
+          </p>
+        </li>
+      ))}
     </ol>
   </div>
 </section>

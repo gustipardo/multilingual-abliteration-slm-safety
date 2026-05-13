@@ -54,7 +54,7 @@ The Gemma 4 lineup also contains a 26B A4B Mixture of Experts variant (~4B activ
 
 **Prompts.** 100 harmful prompts per language, sampled with seed 42 from the BeaverTails `30k_test` split ([PKU-Alignment dataset](https://huggingface.co/datasets/PKU-Alignment/BeaverTails)) and filtered to `is_safe = False`. The non English versions are translations of the same 100 prompts.
 
-**Languages.** English, Spanish, Chinese, Portuguese, German, Arabic, Hindi. A mix of high resource and medium resource.
+**Languages.** English, Spanish, Chinese, Portuguese, German, Arabic, Hindi. A mix of high  and medium  coverage in pretraining data.
 
 **Generation.** Greedy decoding, 512 max new tokens. Gemma 4 frequently produces "delayed refusals" of the form "I can't help with that" embedded after 50 to 100 helpful tokens. A short generation budget would mis classify these as compliant.
 
@@ -95,7 +95,7 @@ A complete protocol, including the judge prompt, is in `PROTOCOL.md` in the repo
 The big move on the curve is the +25 pp jump from E2B to E4B, well outside the ~1.8 pp standard error on the seven-language mean. The drop from E4B to 31B is small but consistent: E4B beats 31B in 4 of 7 languages, ties in zero, trails in 3. The base-to-abliterated gap peaks at E4B too (+57 pp, vs +39 at E2B and +51 at 31B): the same off-the-shelf attack does the most work at the mid size.
 ### Hindi resists more than expected, but the size of the effect varies
 
-Hindi has the lowest abliterated compliance of any language at every size: 39% at E2B, 65% at E4B, 60% at 31B. The most compliant high resource language is not stable across sizes either: Spanish leads at E2B (47%), Portuguese and German tie at E4B (74%), and German leads at 31B (71%). The common assumption that languages with less internet pretraining data should be the most vulnerable to a cross lingual jailbreak does not hold here.
+Hindi has the lowest abliterated compliance of any language at every size: 39% at E2B, 65% at E4B, 60% at 31B. The most compliant well  covered language is not stable across sizes either: Spanish leads at E2B (47%), Portuguese and German tie at E4B (74%), and German leads at 31B (71%). The common assumption that languages with less internet pretraining data should be the most vulnerable to a cross lingual jailbreak does not hold here.
 
 How strong this finding is depends on which size you look at. At E2B the Hindi cell is 8 pp below the next lowest language (a clear effect). At E4B and 31B the Hindi cell is 1 pp below the next lowest, which is within the pooled standard error (~1.8 pp). So Hindi is *not* the most vulnerable at any size, but the visible resistance is a real effect at E2B and shrinks to roughly noise as the model grows.
 
@@ -198,7 +198,7 @@ All three readings are post-hoc: the geometry data was already in hand when we w
 
 1. **Compare abliteration recipes on the same six checkpoints.** Re  running with a different refusal  direction extraction (for example the lab variant in [Wang et al. 2025](https://arxiv.org/abs/2505.17306), or a multi  direction extraction) on the same six checkpoints would tell us whether the E4B peak is about Gemma 4 Dense or about the `huihui  ai` script in particular. This is the only remaining experiment that adjudicates between mechanism 1 and mechanism 3 in the Discussion.
 2. **Add the 26B  A4B Mixture  of  Experts checkpoint, paired with E4B on active parameter count.** Same protocol, different architecture. Either MoE  4B sits with E4B at the peak (the routing layer does not protect refusal geometry) or it lands between E4B and 31B (routing introduces enough variation to recover some refusal structure). Both outcomes are publishable.
-3. **Test more languages and a second judge.** Adding low-resource and safety-misaligned languages (Yoruba, Polish) and replacing Claude Haiku with WildGuard would test whether the per-language ranking and the size-vs-compliance shape survive judge and language perturbations.
+3. **Test more languages and a second judge.** Adding less-pretrained and safety-misaligned languages (Yoruba, Polish) and replacing Claude Haiku with WildGuard would test whether the per-language ranking and the size-vs-compliance shape survive judge and language perturbations.
 
 ## Acknowledgements
 

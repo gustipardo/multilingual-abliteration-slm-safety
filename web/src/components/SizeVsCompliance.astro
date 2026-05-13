@@ -59,11 +59,18 @@ const jumpE4Bto31B = Number((pts[2].abl - peak.abl).toFixed(1));
 <figure class="size-chart" aria-labelledby="size-chart-title" role="group">
   <header class="size-chart__header">
     <h4 id="size-chart-title" class="size-chart__title">
-      Cumplimiento medio post-abliteración no es monótono en tamaño
+      <span data-lang="en">Mean post-abliteration compliance is not monotonic in size</span>
+      <span data-lang="es">Cumplimiento medio post-abliteración no es monótono en tamaño</span>
     </h4>
     <p class="size-chart__subtitle">
-      Gemma 4 Dense · promedio sobre 7 idiomas · 100 prompts dañinos por idioma ·
-      base vs. abliterado (single-vector)
+      <span data-lang="en">
+        Gemma 4 Dense · averaged over 7 languages · 100 harmful prompts per language ·
+        base vs. abliterated (single-vector)
+      </span>
+      <span data-lang="es">
+        Gemma 4 Dense · promedio sobre 7 idiomas · 100 prompts dañinos por idioma ·
+        base vs. abliterado (single-vector)
+      </span>
     </p>
   </header>
 
@@ -193,7 +200,8 @@ const jumpE4Bto31B = Number((pts[2].abl - peak.abl).toFixed(1));
           class="peak-badge__leader"
         />
         <rect x="0" y="0" width="270" height="48" rx="24" class="peak-badge__bg" />
-        <text x="20" y="20" class="peak-badge__eyebrow">PICO DE VULNERABILIDAD</text>
+        <text x="20" y="20" class="peak-badge__eyebrow" data-lang="en">PEAK VULNERABILITY</text>
+        <text x="20" y="20" class="peak-badge__eyebrow" data-lang="es">PICO DE VULNERABILIDAD</text>
         <text x="20" y="38" class="peak-badge__value">
           +{jumpE2BtoE4B.toFixed(1)} pp vs E2B · {jumpE4Bto31B.toFixed(1)} pp vs 31B
         </text>
@@ -217,6 +225,14 @@ const jumpE4Bto31B = Number((pts[2].abl - peak.abl).toFixed(1));
         y={H - 14}
         class="axis-title"
         text-anchor="middle"
+        data-lang="en"
+      >Model size · logarithmic scale</text>
+      <text
+        x={(plotL + plotR) / 2}
+        y={H - 14}
+        class="axis-title"
+        text-anchor="middle"
+        data-lang="es"
       >Tamaño del modelo · escala logarítmica</text>
 
       <text
@@ -225,6 +241,15 @@ const jumpE4Bto31B = Number((pts[2].abl - peak.abl).toFixed(1));
         class="axis-title"
         text-anchor="middle"
         transform={`rotate(-90 20 ${(plotT + plotB) / 2})`}
+        data-lang="en"
+      >Mean compliance (%)</text>
+      <text
+        x={20}
+        y={(plotT + plotB) / 2}
+        class="axis-title"
+        text-anchor="middle"
+        transform={`rotate(-90 20 ${(plotT + plotB) / 2})`}
+        data-lang="es"
       >Compliance promedio (%)</text>
 
       {/* Legend */}
@@ -233,22 +258,32 @@ const jumpE4Bto31B = Number((pts[2].abl - peak.abl).toFixed(1));
         <g transform="translate(16, 22)">
           <line x1="0" y1="0" x2="26" y2="0" class="line line--abl legend__swatch" />
           <circle cx="13" cy="0" r="4.5" class="pt__dot pt__dot--abl" />
-          <text x="38" y="4" class="legend__text">Abliterado (single-vector)</text>
+          <text x="38" y="4" class="legend__text" data-lang="en">Abliterated (single-vector)</text>
+          <text x="38" y="4" class="legend__text" data-lang="es">Abliterado (single-vector)</text>
         </g>
         <g transform="translate(16, 44)">
           <line x1="0" y1="0" x2="26" y2="0" class="line line--base legend__swatch" />
           <circle cx="13" cy="0" r="4.5" class="pt__dot pt__dot--base" />
-          <text x="38" y="4" class="legend__text">Base (filtro intacto)</text>
+          <text x="38" y="4" class="legend__text" data-lang="en">Base (intact filter)</text>
+          <text x="38" y="4" class="legend__text" data-lang="es">Base (filtro intacto)</text>
         </g>
       </g>
     </svg>
   </div>
 
   <figcaption class="size-chart__caption">
-    El cumplimiento post-abliteración salta <strong>+{jumpE2BtoE4B.toFixed(1)} pp</strong> de
-    E2B a E4B y baja <strong>{jumpE4Bto31B.toFixed(1)} pp</strong> de E4B a 31B. El gap
-    base→abliterado también es máximo en E4B (<strong>+{gapE4B.toFixed(1)} pp</strong>).
-    El modelo más accesible para correr en hardware modesto es el más vulnerable al ataque.
+    <span data-lang="en">
+      Post-abliteration compliance jumps <strong>+{jumpE2BtoE4B.toFixed(1)} pp</strong> from
+      E2B to E4B and drops <strong>{jumpE4Bto31B.toFixed(1)} pp</strong> from E4B to 31B. The
+      base→abliterated gap also peaks at E4B (<strong>+{gapE4B.toFixed(1)} pp</strong>).
+      The most accessible model to run on modest hardware is the most vulnerable to the attack.
+    </span>
+    <span data-lang="es">
+      El cumplimiento post-abliteración salta <strong>+{jumpE2BtoE4B.toFixed(1)} pp</strong> de
+      E2B a E4B y baja <strong>{jumpE4Bto31B.toFixed(1)} pp</strong> de E4B a 31B. El gap
+      base→abliterado también es máximo en E4B (<strong>+{gapE4B.toFixed(1)} pp</strong>).
+      El modelo más accesible para correr en hardware modesto es el más vulnerable al ataque.
+    </span>
   </figcaption>
 </figure>
 

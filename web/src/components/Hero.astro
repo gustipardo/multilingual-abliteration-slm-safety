@@ -3,31 +3,60 @@
 
 <section class="section section--hero" id="hero">
   <div class="container container--narrow">
-    <span class="eyebrow">Investigación en seguridad de IA · mayo 2026</span>
+    <span class="eyebrow">
+      <span data-lang="en">AI safety research · May 2026</span>
+      <span data-lang="es">Investigación en seguridad de IA · mayo 2026</span>
+    </span>
     <h1>
-      La paradoja de la <span style="color: var(--amber-500); font-style: italic;">democratización</span>:
-      <br />
-      ¿los modelos más accesibles son los más peligrosos?
+      <span data-lang="en">
+        The <span style="color: var(--amber-500); font-style: italic;">democratization</span> paradox:
+        <br />
+        are the most accessible models the most dangerous?
+      </span>
+      <span data-lang="es">
+        La paradoja de la <span style="color: var(--amber-500); font-style: italic;">democratización</span>:
+        <br />
+        ¿los modelos más accesibles son los más peligrosos?
+      </span>
     </h1>
     <p class="lead" style="margin-top: var(--space-8); color: var(--text-secondary);">
-      Un modelo de IA que corre en un celular. Sin filtro. Hablando 140 idiomas.
-      Subido a internet <strong style="color: var(--text-primary);">48 horas</strong> después del lanzamiento oficial.
-      Esta investigación pregunta: ¿qué tan roto está ese filtro en cada idioma? ¿Y los modelos más chicos se rompen más que los grandes?
+      <span data-lang="en">
+        An AI model that runs on a phone. No safety filter. Speaking 140 languages.
+        Uploaded to the internet <strong style="color: var(--text-primary);">48 hours</strong> after release.
+        This research asks: how broken is that filter in each language? And do smaller models break more than larger ones?
+      </span>
+      <span data-lang="es">
+        Un modelo de IA que corre en un celular. Sin filtro. Hablando 140 idiomas.
+        Subido a internet <strong style="color: var(--text-primary);">48 horas</strong> después del lanzamiento oficial.
+        Esta investigación pregunta: ¿qué tan roto está ese filtro en cada idioma? ¿Y los modelos más chicos se rompen más que los grandes?
+      </span>
     </p>
 
     <div class="hero__cta">
       <a href="/blog-post" class="hero__cta-primary">
-        <span>Leer el blog post completo</span>
+        <span data-lang="en">Read the full blog post</span>
+        <span data-lang="es">Leer el blog post completo</span>
         <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <line x1="5" y1="12" x2="19" y2="12"></line>
           <polyline points="12 5 19 12 12 19"></polyline>
         </svg>
       </a>
-      <span class="hero__cta-meta">~15 min de lectura · resultados, métodos y limitaciones</span>
+      <a href="/talk" class="hero__cta-secondary">
+        <span data-lang="en">Watch the 6-min talk</span>
+        <span data-lang="es">Ver la charla de 6 min</span>
+        <span class="hero__cta-tag">ES</span>
+      </a>
+      <span class="hero__cta-meta">
+        <span data-lang="en">~15 min read · results, methods and limitations</span>
+        <span data-lang="es">~15 min de lectura · resultados, métodos y limitaciones</span>
+      </span>
     </div>
 
     <div class="scroll-hint">
-      <span>o seguí leyendo el resumen</span>
+      <span>
+        <span data-lang="en">or keep reading the summary</span>
+        <span data-lang="es">o seguí leyendo el resumen</span>
+      </span>
       <span class="scroll-hint__arrow">↓</span>
     </div>
   </div>
@@ -37,9 +66,9 @@
   .hero__cta {
     margin-top: var(--space-10, 40px);
     display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--space-2, 8px);
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-3, 12px) var(--space-4, 16px);
   }
 
   .hero__cta-primary {
@@ -71,10 +100,42 @@
     transform: translateX(2px);
   }
 
+  .hero__cta-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2, 8px);
+    padding: 11px 18px;
+    background: transparent;
+    color: var(--text-primary);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-md);
+    font-family: var(--font-body);
+    font-size: 15px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: background 120ms ease, border-color 120ms ease;
+  }
+
+  .hero__cta-secondary:hover {
+    background: var(--surface-2);
+    border-color: var(--border-strong);
+  }
+
+  .hero__cta-tag {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    padding: 1px 5px;
+    border-radius: 4px;
+    background: var(--surface-3);
+    color: var(--text-tertiary);
+  }
+
   .hero__cta-meta {
     font-family: var(--font-mono);
     font-size: 12px;
     color: var(--text-tertiary);
     letter-spacing: 0.04em;
+    flex-basis: 100%;
   }
 </style>

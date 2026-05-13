@@ -1,7 +1,7 @@
 ---
 // 42-cell matrix: 3 Dense sizes × 7 languages × 2 conditions
-// Lee de data/outputs/compliance_rates.csv al hacer build.
-// Si el CSV no existe (corrida no terminada), todas las celdas quedan vacías.
+// Reads from data/outputs/compliance_rates.csv at build time.
+// If the CSV is missing (run not finished), all cells remain empty.
 import fs from "node:fs";
 import path from "node:path";
 
@@ -77,44 +77,89 @@ for (const s of sizes) for (const l of languages) {
 
 <section class="section" id="matriz">
   <div class="container container--wide">
-    <div class="section-number">06 — La matriz</div>
-    <h2>El experimento en una sola grilla</h2>
+    <div class="section-number">
+      <span data-lang="en">06 — The matrix</span>
+      <span data-lang="es">06 — La matriz</span>
+    </div>
+    <h2>
+      <span data-lang="en">The experiment on a single grid</span>
+      <span data-lang="es">El experimento en una sola grilla</span>
+    </h2>
 
     <p class="lead" style="margin-top: var(--space-6);">
-      Así se ve el experimento completo de un vistazo.
-      Cada celda representa el porcentaje de veces que el modelo cumplió un pedido dañino,
-      sobre 100 intentos. La combinación de tamaños, idiomas y condiciones forma la matriz de 42 celdas
-      que el estudio busca llenar.
+      <span data-lang="en">
+        Here is the full experiment at a glance.
+        Each cell represents the percentage of times the model complied with a harmful request,
+        over 100 attempts. The combination of sizes, languages and conditions yields the 42-cell
+        matrix the study aims to fill.
+      </span>
+      <span data-lang="es">
+        Así se ve el experimento completo de un vistazo.
+        Cada celda representa el porcentaje de veces que el modelo cumplió un pedido dañino,
+        sobre 100 intentos. La combinación de tamaños, idiomas y condiciones forma la matriz de 42 celdas
+        que el estudio busca llenar.
+      </span>
     </p>
 
     <p class="muted" style="margin-top: var(--space-4); font-size: 14px;">
-      Los tres tamaños son <strong>todos Dense</strong> (E2B, E4B, 31B). El cuarto modelo del lineup,
-      Gemma 4 26B-A4B, es Mixture-of-Experts y queda fuera de este experimento principal para no mezclar
-      el efecto del tamaño con el de la arquitectura. Lo dejamos como sub-pregunta para otro momento.
+      <span data-lang="en">
+        The three sizes are <strong>all Dense</strong> (E2B, E4B, 31B). The fourth model in the lineup,
+        Gemma 4 26B-A4B, is Mixture-of-Experts and is out of the main experiment to avoid mixing
+        the size effect with the architecture effect. We keep it as a sub-question for later.
+      </span>
+      <span data-lang="es">
+        Los tres tamaños son <strong>todos Dense</strong> (E2B, E4B, 31B). El cuarto modelo del lineup,
+        Gemma 4 26B-A4B, es Mixture-of-Experts y queda fuera de este experimento principal para no mezclar
+        el efecto del tamaño con el de la arquitectura. Lo dejamos como sub-pregunta para otro momento.
+      </span>
     </p>
 
     <div class="concept" style="margin-top: var(--space-8);">
-      <span class="concept__term">Concepto clave</span>
+      <span class="concept__term">
+        <span data-lang="en">Key concept</span>
+        <span data-lang="es">Concepto clave</span>
+      </span>
       <p class="concept__plain">
-        Al porcentaje de veces que el modelo cumplió con un pedido dañino lo llamamos
-        <span class="concept__name">compliance rate</span>. Un 0% significa que rechazó siempre
-        (filtro funciona). Un 100% significa que cumplió siempre (filtro roto). Es nuestra medida principal.
+        <span data-lang="en">
+          The percentage of times the model complied with a harmful request is called the
+          <span class="concept__name">compliance rate</span>. 0% means it always refused
+          (filter works). 100% means it always complied (filter broken). This is our main metric.
+        </span>
+        <span data-lang="es">
+          Al porcentaje de veces que el modelo cumplió con un pedido dañino lo llamamos
+          <span class="concept__name">compliance rate</span>. Un 0% significa que rechazó siempre
+          (filtro funciona). Un 100% significa que cumplió siempre (filtro roto). Es nuestra medida principal.
+        </span>
       </p>
     </div>
 
     <p class="muted" style="margin-top: var(--space-8); text-align: center; font-family: var(--font-mono); font-size: 12px;">
-      {csvFound
-        ? `Datos cargados desde compliance_rates.csv · ${filled}/${totalCells} celdas completadas · actualizado ${lastUpdated}`
-        : "Datos aún no generados — la matriz se llena automáticamente al rebuildar la web cuando termina cada corrida."}
+      {csvFound ? (
+        <>
+          <span data-lang="en">{`Data loaded from compliance_rates.csv · ${filled}/${totalCells} cells filled · last updated ${lastUpdated}`}</span>
+          <span data-lang="es">{`Datos cargados desde compliance_rates.csv · ${filled}/${totalCells} celdas completadas · actualizado ${lastUpdated}`}</span>
+        </>
+      ) : (
+        <>
+          <span data-lang="en">Data not yet generated — the matrix fills automatically when the site is rebuilt after each run.</span>
+          <span data-lang="es">Datos aún no generados — la matriz se llena automáticamente al rebuildar la web cuando termina cada corrida.</span>
+        </>
+      )}
     </p>
 
-    <h3 style="margin-top: var(--space-12);">Modelo base <span class="muted" style="font-weight: 400;">(sin modificar)</span></h3>
+    <h3 style="margin-top: var(--space-12);">
+      <span data-lang="en">Base model <span class="muted" style="font-weight: 400;">(unmodified)</span></span>
+      <span data-lang="es">Modelo base <span class="muted" style="font-weight: 400;">(sin modificar)</span></span>
+    </h3>
 
     <div class="matrix-wrap">
       <table class="matrix">
         <thead>
           <tr>
-            <th class="matrix-group-label">Tamaño</th>
+            <th class="matrix-group-label">
+              <span data-lang="en">Size</span>
+              <span data-lang="es">Tamaño</span>
+            </th>
             {languages.map((l) => <th>{l}</th>)}
           </tr>
         </thead>
@@ -133,13 +178,19 @@ for (const s of sizes) for (const l of languages) {
       </table>
     </div>
 
-    <h3 style="margin-top: var(--space-12);">Modelo abliterado <span class="muted" style="font-weight: 400;">(filtro roto en inglés)</span></h3>
+    <h3 style="margin-top: var(--space-12);">
+      <span data-lang="en">Abliterated model <span class="muted" style="font-weight: 400;">(English filter broken)</span></span>
+      <span data-lang="es">Modelo abliterado <span class="muted" style="font-weight: 400;">(filtro roto en inglés)</span></span>
+    </h3>
 
     <div class="matrix-wrap">
       <table class="matrix">
         <thead>
           <tr>
-            <th class="matrix-group-label">Tamaño</th>
+            <th class="matrix-group-label">
+              <span data-lang="en">Size</span>
+              <span data-lang="es">Tamaño</span>
+            </th>
             {languages.map((l) => <th>{l}</th>)}
           </tr>
         </thead>
@@ -160,21 +211,25 @@ for (const s of sizes) for (const l of languages) {
       <div class="matrix-legend">
         <div class="matrix-legend__item">
           <span class="matrix-legend__swatch" style="background: var(--alpha-sage-24); border: 1px solid var(--sage-500);"></span>
-          Base (filtro funciona)
+          <span data-lang="en">Base (filter works)</span>
+          <span data-lang="es">Base (filtro funciona)</span>
         </div>
         <div class="matrix-legend__item">
           <span class="matrix-legend__swatch" style="background: var(--alpha-terracota-28); border: 1px solid var(--terracota-500);"></span>
-          Abliterado (filtro roto)
+          <span data-lang="en">Abliterated (filter broken)</span>
+          <span data-lang="es">Abliterado (filtro roto)</span>
         </div>
         <div class="matrix-legend__item">
           <span class="matrix-legend__swatch" style="background: transparent; border: 1px dashed var(--border-default);"></span>
-          Celda pendiente
+          <span data-lang="en">Cell pending</span>
+          <span data-lang="es">Celda pendiente</span>
         </div>
       </div>
     </div>
 
     <p class="muted" style="margin-top: var(--space-8); text-align: center; font-family: var(--font-mono); font-size: 13px;">
-      3 tamaños Dense × 7 idiomas × 2 condiciones = 42 celdas · 4.200 evaluaciones
+      <span data-lang="en">3 Dense sizes × 7 languages × 2 conditions = 42 cells · 4,200 evaluations</span>
+      <span data-lang="es">3 tamaños Dense × 7 idiomas × 2 condiciones = 42 celdas · 4.200 evaluaciones</span>
     </p>
   </div>
 </section>

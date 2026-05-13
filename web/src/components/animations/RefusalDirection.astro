@@ -1,0 +1,168 @@
+---
+// RefusalDirection.astro — slide 3. Low-poly activation cloud with a single bright amber
+// "refusal direction" line that pulses, slides out to the right, and lets the cloud relax.
+// 4s beat + 0.5s fade-reset loop. Import:
+//   import RefusalDirection from "../components/animations/RefusalDirection.astro";
+
+type Pt = [number, number];
+
+// Deterministic pseudo-random so the cloud is stable across renders.
+let _seed = 1337;
+function rand() {
+  _seed = (_seed * 9301 + 49297) % 233280;
+  return _seed / 233280;
+}
+
+const CX = 360, CY = 200;
+const RX = 230, RY = 115;
+const N = 60;
+
+const points: Pt[] = [];
+for (let i = 0; i < N; i++) {
+  // bias toward the center so the cloud reads as a soft mass
+  const t  = Math.sqrt(rand());
+  const a  = rand() * Math.PI * 2;
+  const jx = (rand() - 0.5) * 14;
+  const jy = (rand() - 0.5) * 10;
+  points.push([CX + Math.cos(a) * RX * t + jx, CY + Math.sin(a) * RY * t + jy]);
+}
+
+// Connect each point to its 2 nearest neighbours (dedup pairs) for a low-poly mesh.
+const seen = new Set<string>();
+const edges: Array<[number, number]> = [];
+for (let i = 0; i < points.length; i++) {
+  const dists = points
+    .map((p, j) => ({ j, d: i === j ? Infinity : Math.hypot(p[0] - points[i][0], p[1] - points[i][1]) }))
+    .sort((a, b) => a.d - b.d);
+  for (let k = 0; k < 2; k++) {
+    const j = dists[k].j;
+    const key = i < j ? `${i}-${j}` : `${j}-${i}`;
+    if (!seen.has(key)) { seen.add(key); edges.push([i, j]); }
+  }
+}
+---
+
+<div class="refusal-anim" aria-hidden="true">
+  <svg viewBox="0 0 720 405" xmlns="http://www.w3.org/2000/svg">
+    {/* low-poly cloud */}
+    <g class="cloud">
+      <g class="mesh" stroke="#11182A" stroke-width="0.6" fill="none">
+        {edges.map(([a, b]) => (
+          <line
+            x1={points[a][0]} y1={points[a][1]}
+            x2={points[b][0]} y2={points[b][1]}
+          />
+        ))}
+      </g>
+      <g class="dots" fill="#11182A">
+        {points.map(([x, y]) => (
+          <circle cx={x} cy={y} r="1.8" />
+        ))}
+      </g>
+    </g>
+
+    {/* afterglow — wider blurred line that fades as the main line departs */}
+    <line
+      class="afterglow"
+      x1="70" y1="230" x2="650" y2="170"
+      stroke="#B87826" stroke-width="6" stroke-linecap="round"
+      opacity="0"
+    />
+
+    {/* the refusal direction — single sharp amber line */}
+    <line
+      class="ray"
+      x1="70" y1="230" x2="650" y2="170"
+      stroke="#B87826" stroke-width="1.6" stroke-linecap="round"
+    />
+  </svg>
+</div>
+
+<style>
+  .refusal-anim {
+    width: 100%;
+    max-width: 720px;
+    margin: 0 auto;
+    aspect-ratio: 16 / 9;
+    background: #FAF7F1;
+  }
+  .refusal-anim svg { width: 100%; height: 100%; display: block; }
+
+  .refusal-anim .mesh line { opacity: 0.45; }
+  .refusal-anim .dots circle { opacity: 0.65; }
+
+  /* whole frame fades in/out for the loop reset.  total cycle 4.5s. */
+  .refusal-anim svg {
+    animation: refusalFrame 4.5s ease-in-out infinite;
+  }
+
+  /* cloud breathes outward in beat 3 */
+  .refusal-anim .cloud {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: refusalCloud 4.5s cubic-bezier(.4, 0, .2, 1) infinite;
+  }
+
+  /* line: pulses 0-2s, slides out 2-3.5s */
+  .refusal-anim .ray {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: refusalRay 4.5s cubic-bezier(.4, 0, .2, 1) infinite;
+  }
+
+  /* afterglow blooms as the line departs, then fades */
+  .refusal-anim .afterglow {
+    filter: blur(6px);
+    animation: refusalGlow 4.5s ease-in-out infinite;
+  }
+
+  @keyframes refusalFrame {
+    0%      { opacity: 0; }
+    6%      { opacity: 1; }     /* ~0.27s fade in */
+    88%     { opacity: 1; }     /* ~4s, hold */
+    100%    { opacity: 0; }     /* ~0.5s fade out */
+  }
+
+  @keyframes refusalRay {
+    /* beat 1: pulse inside the cloud (0–2s = 0–44%) */
+    0%   { opacity: 0.6; transform: translateX(0); }
+    11%  { opacity: 1.0; }
+    22%  { opacity: 0.6; }
+    33%  { opacity: 1.0; }
+    44%  { opacity: 0.7; transform: translateX(0); }
+    /* beat 2: slide out right (2–3.5s = 44–77%) */
+    66%  { opacity: 0.9; transform: translateX(180px); }
+    77%  { opacity: 0;   transform: translateX(440px); }
+    /* hold gone */
+    100% { opacity: 0;   transform: translateX(440px); }
+  }
+
+  @keyframes refusalGlow {
+    0%, 44%  { opacity: 0; }
+    55%      { opacity: 0.55; }
+    70%      { opacity: 0.3; }
+    82%      { opacity: 0; }
+    100%     { opacity: 0; }
+  }
+
+  @keyframes refusalCloud {
+    0%, 77%  { transform: scale(1); }
+    /* beat 3: tension released (3.5–4s = 77–88%) */
+    88%      { transform: scale(1.08); }
+    100%     { transform: scale(1); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .refusal-anim svg,
+    .refusal-anim .cloud,
+    .refusal-anim .ray,
+    .refusal-anim .afterglow {
+      animation: none !important;
+      opacity: 1 !important;
+      transform: none !important;
+    }
+    .refusal-anim .afterglow { opacity: 0 !important; }
+    .refusal-anim .mesh line { opacity: 0.45 !important; }
+    .refusal-anim .dots circle { opacity: 0.65 !important; }
+  }
+</style>

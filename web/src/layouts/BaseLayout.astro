@@ -1,16 +1,26 @@
 ---
 import "../styles/global.css";
+import NavBar from "../components/NavBar.astro";
 
 interface Props {
   title: string;
   description: string;
+  lang?: "en" | "es";
+  current?: "home" | "blog" | "talk";
+  showNav?: boolean;
 }
 
-const { title, description } = Astro.props;
+const {
+  title,
+  description,
+  lang = "en",
+  current = "home",
+  showNav = true,
+} = Astro.props;
 ---
 
 <!DOCTYPE html>
-<html lang="es">
+<html lang={lang}>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -37,8 +47,8 @@ const { title, description } = Astro.props;
       id="theme-toggle"
       class="theme-toggle"
       type="button"
-      aria-label="Cambiar entre tema claro y oscuro"
-      title="Cambiar tema"
+      aria-label="Toggle light / dark theme"
+      title="Toggle theme"
     >
       <svg class="theme-toggle__icon theme-toggle__icon--moon" viewBox="0 0 24 24" aria-hidden="true">
         <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
@@ -55,6 +65,8 @@ const { title, description } = Astro.props;
         <line x1="17.66" y1="6.34"  x2="19.78" y2="4.22" />
       </svg>
     </button>
+
+    {showNav && <NavBar lang={lang} current={current} />}
 
     <slot />
 

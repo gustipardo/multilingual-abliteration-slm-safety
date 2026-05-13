@@ -3,57 +3,121 @@
 
 <section class="section" id="pregunta">
   <div class="container container--narrow">
-    <div class="section-number">03 — La pregunta</div>
-    <h2>Qué estamos tratando de averiguar</h2>
+    <div class="section-number">
+      <span data-lang="en">03 — The question</span>
+      <span data-lang="es">03 — La pregunta</span>
+    </div>
+    <h2>
+      <span data-lang="en">What we are trying to find out</span>
+      <span data-lang="es">Qué estamos tratando de averiguar</span>
+    </h2>
 
     <p class="lead" style="margin-top: var(--space-6);">
-      El filtro de seguridad se rompe en inglés. ¿Pero qué pasa con los otros idiomas?
-      ¿Y qué pasa según el tamaño del modelo?
+      <span data-lang="en">
+        The safety filter breaks in English. But what happens in the other languages?
+        And what happens as a function of model size?
+      </span>
+      <span data-lang="es">
+        El filtro de seguridad se rompe en inglés. ¿Pero qué pasa con los otros idiomas?
+        ¿Y qué pasa según el tamaño del modelo?
+      </span>
     </p>
 
     <div class="callout">
-      <span class="callout__label" style="color: var(--amber-500);">Pregunta central</span>
+      <span class="callout__label" style="color: var(--amber-500);">
+        <span data-lang="en">Central question</span>
+        <span data-lang="es">Pregunta central</span>
+      </span>
       <p style="font-family: var(--font-display); font-size: 22px; line-height: 1.4; color: var(--text-primary); font-style: italic;">
-        Dentro de la familia Gemma 4, ¿la ruptura del filtro de seguridad multilingüe es peor
-        a medida que el modelo es más chico?
+        <span data-lang="en">
+          Within the Gemma 4 family, is the breakdown of the multilingual safety filter
+          worse the smaller the model gets?
+        </span>
+        <span data-lang="es">
+          Dentro de la familia Gemma 4, ¿la ruptura del filtro de seguridad multilingüe es peor
+          a medida que el modelo es más chico?
+        </span>
       </p>
     </div>
 
-    <h3 style="margin-top: var(--space-16);">La idea detrás</h3>
+    <h3 style="margin-top: var(--space-16);">
+      <span data-lang="en">The idea behind it</span>
+      <span data-lang="es">La idea detrás</span>
+    </h3>
 
     <p style="margin-top: var(--space-4);">
-      Hay una intuición incómoda que sostiene este proyecto.
-      Los modelos más chicos son los más accesibles: corren en un celular común, sin internet,
-      en cualquier rincón del mundo. Es <em>buena noticia</em> — democratiza el acceso a la IA.
+      <span data-lang="en">
+        There is an uncomfortable intuition behind this project.
+        Smaller models are the most accessible: they run on a standard phone, offline,
+        anywhere in the world. That is <em>good news</em> — it democratizes access to AI.
+      </span>
+      <span data-lang="es">
+        Hay una intuición incómoda que sostiene este proyecto.
+        Los modelos más chicos son los más accesibles: corren en un celular común, sin internet,
+        en cualquier rincón del mundo. Es <em>buena noticia</em> — democratiza el acceso a la IA.
+      </span>
     </p>
 
     <p style="margin-top: var(--space-4);">
-      Pero si justamente esos modelos chicos son los que peor resisten la abliteration, y
-      si además el filtro colapsa más en idiomas con menos recursos (árabe, hindi), entonces
-      los modelos que mejor sirven a las comunidades más vulnerables son exactamente los
-      que peor las protegen cuando alguien decide romperlos. A eso es a lo que apunta esta investigación.
+      <span data-lang="en">
+        But if precisely those small models are the ones that resist abliteration the worst, and
+        the filter additionally collapses more in languages with less pretraining data (Arabic, Hindi), then
+        the models that serve the most vulnerable communities best are exactly the ones
+        that protect them worst once someone breaks them. That is where this research points.
+      </span>
+      <span data-lang="es">
+        Pero si justamente esos modelos chicos son los que peor resisten la abliteration, y
+        si además el filtro colapsa más en idiomas con menos datos en el preentrenamiento (árabe, hindi), entonces
+        los modelos que mejor sirven a las comunidades más vulnerables son exactamente los
+        que peor las protegen cuando alguien decide romperlos. A eso es a lo que apunta esta investigación.
+      </span>
     </p>
 
     <div class="concept">
-      <span class="concept__term">Concepto clave</span>
+      <span class="concept__term">
+        <span data-lang="en">Key concept</span>
+        <span data-lang="es">Concepto clave</span>
+      </span>
       <p class="concept__plain">
-        La idea de que "los más accesibles son los más peligrosos una vez rotos" —
-        <span class="concept__name">democratization safety paradox</span> —
-        es el marco central del paper.
-        Si se confirma, la implicación práctica es fuerte: no alcanza con entrenar seguridad en inglés
-        y después escalar hacia abajo. La seguridad multilingüe tiene que ser una prioridad desde el inicio,
-        especialmente en los modelos chicos.
+        <span data-lang="en">
+          The idea that "the most accessible are the most dangerous once broken" —
+          <span class="concept__name">democratization safety paradox</span> —
+          is the central framing of the paper.
+          If confirmed, the practical implication is strong: it is not enough to train safety in English
+          and then scale it down. Multilingual safety must be a priority from the start,
+          especially in smaller models.
+        </span>
+        <span data-lang="es">
+          La idea de que "los más accesibles son los más peligrosos una vez rotos" —
+          <span class="concept__name">democratization safety paradox</span> —
+          es el marco central del paper.
+          Si se confirma, la implicación práctica es fuerte: no alcanza con entrenar seguridad en inglés
+          y después escalar hacia abajo. La seguridad multilingüe tiene que ser una prioridad desde el inicio,
+          especialmente en los modelos chicos.
+        </span>
       </p>
     </div>
 
     <div class="callout callout--author">
-      <span class="callout__label">Voz del autor</span>
+      <span class="callout__label">
+        <span data-lang="en">Author's voice</span>
+        <span data-lang="es">Voz del autor</span>
+      </span>
       <p style="font-style: italic;">
-        Mi apuesta personal es que el paradox se va a confirmar, pero no por los motivos obvios.
-        Los modelos chicos no son "peores" — son diferentes. Tienen menos capacidad para guardar
-        un filtro de seguridad robusto en muchos idiomas a la vez. Cuando les sacás el filtro en inglés,
-        lo poco que tenían en los otros idiomas también se va. Es una hipótesis falsable y este
-        estudio está diseñado para ponerla a prueba.
+        <span data-lang="en">
+          My personal bet is that the paradox will be confirmed, but not for the obvious reasons.
+          Small models are not "worse" — they are different. They have less capacity to hold
+          a robust safety filter across many languages at once. When you strip the filter in English,
+          the little they had in the other languages goes with it. It is a falsifiable hypothesis
+          and this study is designed to test it.
+        </span>
+        <span data-lang="es">
+          Mi apuesta personal es que el paradox se va a confirmar, pero no por los motivos obvios.
+          Los modelos chicos no son "peores" — son diferentes. Tienen menos capacidad para guardar
+          un filtro de seguridad robusto en muchos idiomas a la vez. Cuando les sacás el filtro en inglés,
+          lo poco que tenían en los otros idiomas también se va. Es una hipótesis falsable y este
+          estudio está diseñado para ponerla a prueba.
+        </span>
       </p>
     </div>
   </div>

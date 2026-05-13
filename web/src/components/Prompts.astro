@@ -1,6 +1,6 @@
 ---
-// Tabla de los 100 prompts (×7 idiomas) que entran al pipeline.
-// Lee data/prompts/{lang}.jsonl al hacer build.
+// Table of the 100 prompts (×7 languages) that enter the pipeline.
+// Reads data/prompts/{lang}.jsonl at build time.
 import fs from "node:fs";
 import path from "node:path";
 
@@ -46,36 +46,59 @@ const enCount = promptsByLang.en.length;
 
 <section class="section" id="prompts">
   <div class="container container--wide">
-    <div class="section-number">10 — Los prompts</div>
-    <h2>Los 100 pedidos dañinos, en siete idiomas</h2>
+    <div class="section-number">
+      <span data-lang="en">10 — The prompts</span>
+      <span data-lang="es">10 — Los prompts</span>
+    </div>
+    <h2>
+      <span data-lang="en">The 100 harmful requests, in seven languages</span>
+      <span data-lang="es">Los 100 pedidos dañinos, en siete idiomas</span>
+    </h2>
 
     <p class="lead" style="margin-top: var(--space-6);">
-      Estos son los prompts que entran al pipeline. Salen de
-      <span class="concept__name">PKU-Alignment/BeaverTails</span> (split <code>30k_test</code>),
-      filtrados por <code>is_safe == False</code> y sampleados con <code>seed=42</code>.
-      Los 100 prompts en inglés son la fuente; las versiones en otros idiomas son traducciones
-      pareadas (mismo <code>id</code> = mismo prompt). Con 100 prompts cada error se cuenta como
-      1% (antes 50 prompts ⇒ 2%): mayor sensibilidad para detectar diferencias chicas.
+      <span data-lang="en">
+        These are the prompts that enter the pipeline. They come from
+        <span class="concept__name">PKU-Alignment/BeaverTails</span> (the <code>30k_test</code> split),
+        filtered by <code>is_safe == False</code> and sampled with <code>seed=42</code>.
+        The 100 English prompts are the source; the other languages are paired translations
+        (same <code>id</code> = same prompt). With 100 prompts each miscount is worth 1%
+        (previously 50 prompts ⇒ 2%): higher sensitivity to detect small differences.
+      </span>
+      <span data-lang="es">
+        Estos son los prompts que entran al pipeline. Salen de
+        <span class="concept__name">PKU-Alignment/BeaverTails</span> (split <code>30k_test</code>),
+        filtrados por <code>is_safe == False</code> y sampleados con <code>seed=42</code>.
+        Los 100 prompts en inglés son la fuente; las versiones en otros idiomas son traducciones
+        pareadas (mismo <code>id</code> = mismo prompt). Con 100 prompts cada error se cuenta como
+        1% (antes 50 prompts ⇒ 2%): mayor sensibilidad para detectar diferencias chicas.
+      </span>
     </p>
 
     <p class="muted" style="margin-top: var(--space-6); font-family: var(--font-mono); font-size: 12px;">
-      ⚠️ Contenido sensible — el dataset está diseñado para evaluar rechazos de modelos de IA.
-      Todos los prompts son ofensivos o piden información dañina <em>a propósito</em>.
+      <span data-lang="en">
+        ⚠️ Sensitive content — the dataset is designed to evaluate AI model refusals.
+        All prompts are offensive or ask for harmful information <em>on purpose</em>.
+      </span>
+      <span data-lang="es">
+        ⚠️ Contenido sensible — el dataset está diseñado para evaluar rechazos de modelos de IA.
+        Todos los prompts son ofensivos o piden información dañina <em>a propósito</em>.
+      </span>
     </p>
 
     <p class="muted" style="margin-top: var(--space-4); font-family: var(--font-mono); font-size: 12px;">
-      {totalRows} filas cargadas · {enCount} prompts × {langs.length} idiomas
+      <span data-lang="en">{totalRows} rows loaded · {enCount} prompts × {langs.length} languages</span>
+      <span data-lang="es">{totalRows} filas cargadas · {enCount} prompts × {langs.length} idiomas</span>
     </p>
 
     <div class="prompts-controls" style="margin-top: var(--space-8);">
-      <div class="prompts-tabs" role="tablist" aria-label="Idioma de los prompts">
+      <div class="prompts-tabs" role="tablist" aria-label="Prompt language">
         {langs.map((l, i) => (
           <button
             type="button"
             class={`prompts-tab${i === 0 ? " prompts-tab--active" : ""}`}
             role="tab"
             aria-selected={i === 0 ? "true" : "false"}
-            data-lang={l}
+            data-prompt-lang={l}
           >
             {langLabels[l]}
           </button>
@@ -86,8 +109,8 @@ const enCount = promptsByLang.en.length;
         type="search"
         id="prompts-search"
         class="prompts-search"
-        placeholder="Buscar por id, categoría o texto…"
-        aria-label="Buscar prompts"
+        placeholder="Search by id, category or text…"
+        aria-label="Search prompts"
       />
     </div>
 
@@ -95,7 +118,7 @@ const enCount = promptsByLang.en.length;
       {langs.map((l, i) => (
         <div
           class={`prompts-panel${i === 0 ? " prompts-panel--active" : ""}`}
-          data-lang={l}
+          data-prompt-lang={l}
           role="tabpanel"
           aria-hidden={i === 0 ? "false" : "true"}
           dir={l === "ar" ? "rtl" : "ltr"}
@@ -104,7 +127,10 @@ const enCount = promptsByLang.en.length;
             <thead>
               <tr>
                 <th class="prompts-th--id">ID</th>
-                <th class="prompts-th--cat">Categoría</th>
+                <th class="prompts-th--cat">
+                  <span data-lang="en">Category</span>
+                  <span data-lang="es">Categoría</span>
+                </th>
                 <th>Prompt ({l.toUpperCase()})</th>
               </tr>
             </thead>
@@ -135,14 +161,14 @@ const enCount = promptsByLang.en.length;
 
   tabs.forEach((btn) => {
     btn.addEventListener("click", () => {
-      const lang = btn.dataset.lang;
+      const lang = btn.dataset.promptLang;
       tabs.forEach((b) => {
-        const active = b.dataset.lang === lang;
+        const active = b.dataset.promptLang === lang;
         b.classList.toggle("prompts-tab--active", active);
         b.setAttribute("aria-selected", active ? "true" : "false");
       });
       panels.forEach((p) => {
-        const active = p.dataset.lang === lang;
+        const active = p.dataset.promptLang === lang;
         p.classList.toggle("prompts-panel--active", active);
         p.setAttribute("aria-hidden", active ? "false" : "true");
       });

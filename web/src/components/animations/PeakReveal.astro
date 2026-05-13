@@ -1,0 +1,166 @@
+---
+// PeakReveal.astro — slide 6. Three vertical bars: sage baseline grows, then a terracotta
+// layer stacks on top with the middle bar reaching highest, then a single amber breath
+// at the apex. Plays once when the host slide gains `.active`, or via `el.play()`.
+// Import:
+//   import PeakReveal from "../components/animations/PeakReveal.astro";
+
+// Frame = 800 × 450 (16:9). Baseline at y=420. Percentages are of viewBox height (450).
+const BASE = 420;
+const FRAME = 450;
+const pct = (p: number) => (p / 100) * FRAME;
+
+const bars = [
+  // sage% , terra%total ,  x , label
+  { sage: 40, total: 60, x: 140, label: "E2B" },
+  { sage: 55, total: 85, x: 340, label: "E4B" },
+  { sage: 65, total: 78, x: 540, label: "31B" },
+];
+const W = 120;
+---
+
+<div class="peak-anim" data-peak-anim aria-hidden="true">
+  <svg viewBox="0 0 800 450" xmlns="http://www.w3.org/2000/svg">
+    {/* baseline rule */}
+    <line x1="80" y1={BASE + 0.5} x2="720" y2={BASE + 0.5}
+          stroke="#E8E2D2" stroke-width="1" />
+
+    {/* sage bases */}
+    <g class="sage-group">
+      {bars.map((b, i) => {
+        const h = pct(b.sage);
+        const y = BASE - h;
+        return (
+          <rect class={`sage sage-${i + 1}`} x={b.x} y={y} width={W} height={h}
+                fill="#4A7B5C" />
+        );
+      })}
+    </g>
+
+    {/* terracotta caps stacked on top of sage */}
+    <g class="terra-group">
+      {bars.map((b, i) => {
+        const totalH = pct(b.total);
+        const sageH  = pct(b.sage);
+        const capH   = totalH - sageH;
+        const y      = BASE - totalH;
+        return (
+          <rect class={`terra terra-${i + 1}`} x={b.x} y={y} width={W} height={capH}
+                fill="#A55A3D" />
+        );
+      })}
+    </g>
+
+    {/* amber breath at the peak of the middle bar (final top = BASE - pct(85)) */}
+    <ellipse class="glow"
+             cx={bars[1].x + W / 2}
+             cy={BASE - pct(85)}
+             rx="80" ry="24"
+             fill="#B87826" />
+
+    {/* model labels under each bar — JetBrains Mono via design system */}
+    <g class="labels"
+       font-family="'JetBrains Mono', Menlo, monospace"
+       font-size="18" font-weight="500"
+       fill="#11182A"
+       text-anchor="middle">
+      {bars.map((b) => (
+        <text class="label" x={b.x + W / 2} y={BASE + 24}>{b.label}</text>
+      ))}
+    </g>
+  </svg>
+</div>
+
+<style>
+  .peak-anim {
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+    aspect-ratio: 16 / 9;
+    background: #FAF7F1;
+  }
+  .peak-anim svg { width: 100%; height: 100%; display: block; }
+
+  /* initial state — everything collapsed at the baseline */
+  .peak-anim .sage,
+  .peak-anim .terra {
+    transform-box: fill-box;
+    transform-origin: bottom;
+    transform: scaleY(0);
+  }
+  .peak-anim .glow {
+    opacity: 0;
+    filter: blur(14px);
+  }
+  .peak-anim .labels { opacity: 0; }
+
+  /* phase 1 — sage rises (0–1s), slight stagger */
+  .peak-anim.playing .sage-1 { animation: peakGrow 1s    cubic-bezier(.25, .46, .45, .94) 0s    forwards; }
+  .peak-anim.playing .sage-2 { animation: peakGrow 1s    cubic-bezier(.25, .46, .45, .94) 0.1s  forwards; }
+  .peak-anim.playing .sage-3 { animation: peakGrow 1s    cubic-bezier(.25, .46, .45, .94) 0.2s  forwards; }
+
+  /* phase 2 — terracotta caps stack on (1–2.5s), 0.15s stagger each */
+  .peak-anim.playing .terra-1 { animation: peakGrow 1.2s cubic-bezier(.25, .46, .45, .94) 1s    forwards; }
+  .peak-anim.playing .terra-2 { animation: peakGrow 1.2s cubic-bezier(.25, .46, .45, .94) 1.15s forwards; }
+  .peak-anim.playing .terra-3 { animation: peakGrow 1.2s cubic-bezier(.25, .46, .45, .94) 1.3s  forwards; }
+
+  /* phase 3 — single amber breath at the peak (2.5–3s) */
+  .peak-anim.playing .glow   { animation: peakGlow  0.5s ease-in-out 2.5s forwards; }
+  .peak-anim.playing .labels { animation: peakLabel 0.5s ease-out    2.6s forwards; }
+
+  @keyframes peakGrow {
+    to { transform: scaleY(1); }
+  }
+  @keyframes peakGlow {
+    0%   { opacity: 0;   }
+    50%  { opacity: 0.4; }
+    100% { opacity: 0;   }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .peak-anim .sage,
+    .peak-anim .terra {
+      transform: scaleY(1) !important;
+      animation: none !important;
+    }
+    .peak-anim .glow { animation: none !important; opacity: 0 !important; }
+  }
+</style>
+
+<script>
+  // Trigger on `.active` toggle of the closest [data-slide] ancestor, and expose .play().
+  type Playable = HTMLElement & { play?: () => void };
+
+  const init = () => {
+    document.querySelectorAll<Playable>("[data-peak-anim]").forEach((el) => {
+      const restart = () => {
+        el.classList.remove("playing");
+        // force reflow so the animation actually re-runs
+        void el.offsetWidth;
+        el.classList.add("playing");
+      };
+
+      el.play = restart;
+
+      const slide = el.closest<HTMLElement>("[data-slide]");
+      if (!slide) {
+        // no slide host — autoplay once on mount
+        restart();
+        return;
+      }
+
+      if (slide.classList.contains("active")) restart();
+
+      const obs = new MutationObserver(() => {
+        if (slide.classList.contains("active")) restart();
+      });
+      obs.observe(slide, { attributes: true, attributeFilter: ["class"] });
+    });
+  };
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", init, { once: true });
+  } else {
+    init();
+  }
+</script>

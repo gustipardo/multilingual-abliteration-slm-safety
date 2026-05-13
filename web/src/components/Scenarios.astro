@@ -2,70 +2,121 @@
 const scenarios = [
   {
     letter: "A",
-    title: "Todos iguales, todos altos",
+    en: {
+      title: "All equal, all high",
+      reading: "Abliteration breaks everything evenly. Size doesn't matter.",
+      implication: "The main hypothesis falls. Still a valid paper: it shows size doesn't protect.",
+    },
+    es: {
+      title: "Todos iguales, todos altos",
+      reading: "La abliteration rompe todo por igual. El tamaño no importa.",
+      implication: "La hipótesis principal se cae. Igual es un paper válido: demuestra que el tamaño no protege.",
+    },
     data: [
       { size: "E2B", val: 90 }, { size: "E4B", val: 92 }, { size: "31B", val: 90 },
     ],
-    reading: "La abliteration rompe todo por igual. El tamaño no importa.",
-    implication: "La hipótesis principal se cae. Igual es un paper válido: demuestra que el tamaño no protege.",
     color: "var(--text-secondary)",
   },
   {
     letter: "B",
-    title: "Los chicos se rompen más (hipótesis original)",
+    en: {
+      title: "Small breaks more (original hypothesis)",
+      reading: "Large models resist abliteration better than small ones.",
+      implication: "Confirms the democratization paradox. Direct policy implications: multilingual safety must be prioritised in small models.",
+    },
+    es: {
+      title: "Los chicos se rompen más (hipótesis original)",
+      reading: "Los modelos grandes resisten más a la abliteration que los chicos.",
+      implication: "Confirma el democratization paradox. Tiene implicaciones directas de política: la seguridad multilingüe debe priorizarse en modelos chicos.",
+    },
     data: [
       { size: "E2B", val: 90 }, { size: "E4B", val: 70 }, { size: "31B", val: 40 },
     ],
-    reading: "Los modelos grandes resisten más a la abliteration que los chicos.",
-    implication: "Confirma el democratization paradox. Tiene implicaciones directas de política: la seguridad multilingüe debe priorizarse en modelos chicos.",
     color: "var(--terracota-300)",
   },
   {
     letter: "C",
-    title: "Los grandes se rompen más",
+    en: {
+      title: "Large breaks more",
+      reading: "Larger models have a cleaner refusal direction and are therefore easier to attack.",
+      implication: "Counterintuitive and valuable. The paper would argue that scaling a model without rethinking its safety makes it more vulnerable, not less.",
+    },
+    es: {
+      title: "Los grandes se rompen más",
+      reading: "Los modelos más grandes tienen una dirección de rechazo más clara y por eso son más fáciles de atacar.",
+      implication: "Contraintuitivo y valioso. El paper argumentaría que escalar un modelo sin repensar su seguridad lo vuelve más vulnerable, no menos.",
+    },
     data: [
       { size: "E2B", val: 45 }, { size: "E4B", val: 65 }, { size: "31B", val: 90 },
     ],
-    reading: "Los modelos más grandes tienen una dirección de rechazo más clara y por eso son más fáciles de atacar.",
-    implication: "Contraintuitivo y valioso. El paper argumentaría que escalar un modelo sin repensar su seguridad lo vuelve más vulnerable, no menos.",
     color: "var(--amber-300)",
-    annotation: "Refutado parcialmente: la curva sí sube de E2B (43%) a E4B (68%), pero cae a 64% en 31B. La pendiente final no es positiva.",
+    annotation_en: "Partially refuted: the curve does climb from E2B (43%) to E4B (68%), but drops to 64% at 31B. The final slope is not positive.",
+    annotation_es: "Refutado parcialmente: la curva sí sube de E2B (43%) a E4B (68%), pero cae a 64% en 31B. La pendiente final no es positiva.",
   },
   {
     letter: "D",
-    title: "Mixto, depende del idioma",
+    en: {
+      title: "Mixed, language-dependent",
+      reading: "No clear pattern by size. The language × size interaction dominates.",
+      implication: "The central finding moves to languages. The paper reframes: languages with less pretraining data are the strongest finding, regardless of size.",
+    },
+    es: {
+      title: "Mixto, depende del idioma",
+      reading: "No hay un patrón claro por tamaño. La interacción idioma × tamaño domina.",
+      implication: "El hallazgo central se mueve a los idiomas. El paper se reenfoca: los idiomas de bajo recurso son el problema más fuerte, independiente del tamaño.",
+    },
     data: [
       { size: "E2B", val: 70 }, { size: "E4B", val: 50 }, { size: "31B", val: 45 },
     ],
-    reading: "No hay un patrón claro por tamaño. La interacción idioma × tamaño domina.",
-    implication: "El hallazgo central se mueve a los idiomas. El paper se reenfoca: los idiomas de bajo recurso son el problema más fuerte, independiente del tamaño.",
     color: "var(--sage-300)",
   },
   {
     letter: "E",
-    title: "Pico en el medio (lo que efectivamente pasó)",
+    en: {
+      title: "Peak in the middle (what actually happened)",
+      reading: "The curve jumps from 2B to 4B (+25 pp), then drops 4 pp going to 31B. Post-abliteration vulnerability peaks at the middle model, not at either extreme.",
+      implication: "The democratization safety paradox is still alive but with a different mechanism: the most vulnerable model is the most accessible one to run on consumer GPUs and phone-scale (~4B at low quantization). The paper shows that scaling inside Gemma 4 Dense neither protects nor breaks things linearly — the geometry of the refusal representation is non-monotonic.",
+    },
+    es: {
+      title: "Pico en el medio (lo que efectivamente pasó)",
+      reading: "La curva sube fuerte de 2B a 4B (+25 pp), después cae 4 pp al ir a 31B. La vulnerabilidad post-abliteración tiene su máximo en el modelo intermedio, no en los extremos.",
+      implication: "La democratization safety paradox sigue viva pero con un mecanismo distinto: el modelo más vulnerable es el más accesible para correr en consumer GPUs y phone-scale (~4B a baja cuantización). El paper muestra que escalar dentro de Gemma 4 Dense no protege ni rompe linealmente — la geometría de la representación de rechazo es no monótona.",
+    },
     data: [
       { size: "E2B", val: 43 }, { size: "E4B", val: 68 }, { size: "31B", val: 64 },
     ],
-    reading: "La curva sube fuerte de 2B a 4B (+25 pp), después cae 4 pp al ir a 31B. La vulnerabilidad post-abliteración tiene su máximo en el modelo intermedio, no en los extremos.",
-    implication: "La democratization safety paradox sigue viva pero con un mecanismo distinto: el modelo más vulnerable es el más accesible para correr en consumer GPUs y phone-scale (~4B a baja cuantización). El paper muestra que escalar dentro de Gemma 4 Dense no protege ni rompe linealmente — la geometría de la representación de rechazo es no monótona.",
     color: "var(--terracota-300)",
     highlight: true,
-    annotation: "Datos finales: E2B 42.9% · E4B 68.1% (pico) · 31B 64.4%. Los tres tamaños cerrados al 5 May 2026.",
+    annotation_en: "Final numbers: E2B 42.9% · E4B 68.1% (peak) · 31B 64.4%. All three sizes closed on May 5, 2026.",
+    annotation_es: "Datos finales: E2B 42.9% · E4B 68.1% (pico) · 31B 64.4%. Los tres tamaños cerrados al 5 May 2026.",
   },
 ];
 ---
 
 <section class="section" id="escenarios">
   <div class="container container--narrow">
-    <div class="section-number">08 — Escenarios</div>
-    <h2>Los cinco escenarios — cuatro pre-registrados + el que apareció</h2>
+    <div class="section-number">
+      <span data-lang="en">08 — Scenarios</span>
+      <span data-lang="es">08 — Escenarios</span>
+    </div>
+    <h2>
+      <span data-lang="en">Five scenarios — four pre-registered + the one that showed up</span>
+      <span data-lang="es">Los cinco escenarios — cuatro pre-registrados + el que apareció</span>
+    </h2>
 
     <p class="lead" style="margin-top: var(--space-6);">
-      Antes de correr la matriz pre-registramos cuatro patrones posibles (A, B, C, D).
-      Los tres tamaños ya están cerrados y el patrón que apareció <strong>no era ninguno
-      de los cuatro</strong>: la curva tiene un pico en el medio (E), una forma que no había
-      sido considerada como hipótesis pero que es a la vez sólida y publicable.
+      <span data-lang="en">
+        Before running the matrix we pre-registered four possible patterns (A, B, C, D).
+        All three sizes are closed, and the pattern that showed up <strong>was none of the four</strong>:
+        the curve peaks in the middle (E), a shape we had not considered as a hypothesis but which is
+        both solid and publishable.
+      </span>
+      <span data-lang="es">
+        Antes de correr la matriz pre-registramos cuatro patrones posibles (A, B, C, D).
+        Los tres tamaños ya están cerrados y el patrón que apareció <strong>no era ninguno
+        de los cuatro</strong>: la curva tiene un pico en el medio (E), una forma que no había
+        sido considerada como hipótesis pero que es a la vez sólida y publicable.
+      </span>
     </p>
 
     <div style="margin-top: var(--space-12); display: grid; grid-template-columns: 1fr; gap: var(--space-6);">
@@ -78,7 +129,10 @@ const scenarios = [
             <span style="font-family: var(--font-display); font-size: 42px; font-weight: 500; color: var(--amber-500); line-height: 1;">
               {s.letter}
             </span>
-            <h4 style="margin: 0;">{s.title}</h4>
+            <h4 style="margin: 0;">
+              <span data-lang="en">{s.en.title}</span>
+              <span data-lang="es">{s.es.title}</span>
+            </h4>
           </div>
 
           <div style="display: flex; gap: var(--space-2); margin: var(--space-4) 0; font-family: var(--font-mono); font-size: 12px;">
@@ -91,20 +145,32 @@ const scenarios = [
           </div>
 
           <p style="font-size: 15px; color: var(--text-primary);">
-            <strong>Lectura:</strong> {s.reading}
+            <strong>
+              <span data-lang="en">Reading:</span>
+              <span data-lang="es">Lectura:</span>
+            </strong>{" "}
+            <span data-lang="en">{s.en.reading}</span>
+            <span data-lang="es">{s.es.reading}</span>
           </p>
           <p style="margin-top: var(--space-2); font-size: 15px; color: var(--text-secondary);">
-            <strong style="color: var(--text-primary);">Implicancia:</strong> {s.implication}
+            <strong style="color: var(--text-primary);">
+              <span data-lang="en">Implication:</span>
+              <span data-lang="es">Implicancia:</span>
+            </strong>{" "}
+            <span data-lang="en">{s.en.implication}</span>
+            <span data-lang="es">{s.es.implication}</span>
           </p>
 
           {s.highlight && (
             <div style="margin-top: var(--space-4); font-size: 13px; color: var(--amber-500); font-family: var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase;">
-              ← Datos preliminares apuntan acá
+              <span data-lang="en">← Preliminary data point here</span>
+              <span data-lang="es">← Datos preliminares apuntan acá</span>
             </div>
           )}
-          {s.annotation && (
+          {s.annotation_en && (
             <p style="margin-top: var(--space-3); font-size: 13px; color: var(--text-tertiary); font-style: italic;">
-              {s.annotation}
+              <span data-lang="en">{s.annotation_en}</span>
+              <span data-lang="es">{s.annotation_es}</span>
             </p>
           )}
         </div>

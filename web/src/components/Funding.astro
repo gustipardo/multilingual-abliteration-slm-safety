@@ -1,47 +1,87 @@
 ---
+const items = [
+  {
+    value: "$200",
+    en: "Claude Code Max (1 month) — assisted development environment",
+    es: "Claude Code Max (1 mes) — entorno de desarrollo asistido",
+  },
+  {
+    value: "$50",
+    en: "RunPod — RTX 4090 GPU for the larger models",
+    es: "RunPod — GPU RTX 4090 para los modelos grandes",
+  },
+  {
+    value: "$50",
+    en: "WildGuardMix access — cross-validation",
+    es: "Acceso a WildGuardMix — validación cruzada",
+  },
+  {
+    value: "$30",
+    en: "Miscellaneous APIs — translations, dataset hosting",
+    es: "APIs varias — traducciones, hosting de datasets",
+  },
+  {
+    value: "$20",
+    en: "Anthropic API — Claude Haiku as judge, 4,200 calls",
+    es: "API de Anthropic — Claude Haiku como juez, 4.200 llamadas",
+  },
+];
 ---
 
 <section class="section" id="financiamiento">
   <div class="container container--narrow">
-    <div class="section-number">11 — Financiamiento</div>
-    <h2>Cómo se paga</h2>
+    <div class="section-number">
+      <span data-lang="en">11 — Funding</span>
+      <span data-lang="es">11 — Financiamiento</span>
+    </div>
+    <h2>
+      <span data-lang="en">How it's paid for</span>
+      <span data-lang="es">Cómo se paga</span>
+    </h2>
 
     <p class="lead" style="margin-top: var(--space-6);">
-      Este proyecto recibió un grant de 350 USD el 21 de abril de 2026,
-      aprobado por <strong>BlueDot Impact</strong> vía su programa de Rapid Grants.
-      Cubre exactamente lo que se necesita para cerrar las fases de compute.
+      <span data-lang="en">
+        This project received a $350 USD grant on April 21, 2026,
+        approved by <strong>BlueDot Impact</strong> via its Rapid Grants programme.
+        It covers exactly what is needed to close the compute phases.
+      </span>
+      <span data-lang="es">
+        Este proyecto recibió un grant de 350 USD el 21 de abril de 2026,
+        aprobado por <strong>BlueDot Impact</strong> vía su programa de Rapid Grants.
+        Cubre exactamente lo que se necesita para cerrar las fases de compute.
+      </span>
     </p>
 
     <div class="stat-grid" style="margin-top: var(--space-10);">
-      <div class="stat">
-        <div class="stat__value">$200</div>
-        <div class="stat__label">Claude Code Max (1 mes) — entorno de desarrollo asistido</div>
-      </div>
-      <div class="stat">
-        <div class="stat__value">$50</div>
-        <div class="stat__label">RunPod — GPU RTX 4090 para los modelos grandes</div>
-      </div>
-      <div class="stat">
-        <div class="stat__value">$50</div>
-        <div class="stat__label">Acceso a WildGuardMix — validación cruzada</div>
-      </div>
-      <div class="stat">
-        <div class="stat__value">$30</div>
-        <div class="stat__label">APIs varias — traducciones, hosting de datasets</div>
-      </div>
-      <div class="stat">
-        <div class="stat__value">$20</div>
-        <div class="stat__label">API de Anthropic — Claude Haiku como juez, 4.200 llamadas</div>
-      </div>
+      {items.map((it) => (
+        <div class="stat">
+          <div class="stat__value">{it.value}</div>
+          <div class="stat__label">
+            <span data-lang="en">{it.en}</span>
+            <span data-lang="es">{it.es}</span>
+          </div>
+        </div>
+      ))}
     </div>
 
     <div class="callout callout--finding">
-      <span class="callout__label">Por qué importa</span>
+      <span class="callout__label">
+        <span data-lang="en">Why it matters</span>
+        <span data-lang="es">Por qué importa</span>
+      </span>
       <p>
-        Que una investigación de seguridad multilingüe en modelos chicos pueda hacerse con 350 USD
-        es parte del argumento del paper: la investigación en seguridad es accesible,
-        pero también lo es el daño. El costo de romper un modelo es menor al costo de estudiarlo.
-        Esta asimetría es un problema estructural del ecosistema.
+        <span data-lang="en">
+          The fact that a piece of multilingual safety research on small models can be done with
+          $350 USD is part of the paper's argument: safety research is accessible,
+          but so is the harm. The cost of breaking a model is lower than the cost of studying it.
+          That asymmetry is a structural problem of the ecosystem.
+        </span>
+        <span data-lang="es">
+          Que una investigación de seguridad multilingüe en modelos chicos pueda hacerse con 350 USD
+          es parte del argumento del paper: la investigación en seguridad es accesible,
+          pero también lo es el daño. El costo de romper un modelo es menor al costo de estudiarlo.
+          Esta asimetría es un problema estructural del ecosistema.
+        </span>
       </p>
     </div>
   </div>

@@ -1,44 +1,76 @@
 ---
+const items = [
+  {
+    en: {
+      h: "There's a technique to break the safety filter of an AI.",
+      p: "A model trained to refuse harmful requests (\"I can't help with that\") can have that refusal capability surgically removed. Permanently.",
+    },
+    es: {
+      h: "Existe una técnica para romper el filtro de seguridad de una IA.",
+      p: "A un modelo entrenado para negarse a pedidos dañinos (\"no te puedo ayudar con eso\") se le puede quitar esa capacidad de rechazo. Se la \"rompe\" de forma permanente.",
+    },
+  },
+  {
+    en: {
+      h: "That technique is applied in English, but the models speak many languages.",
+      p: "What happens to the filter in Spanish, Chinese, Arabic or Hindi when you only break it in English? Does it collapse evenly? Are some languages left worse protected than others?",
+    },
+    es: {
+      h: "Esa técnica se aplica en inglés, pero los modelos hablan muchos idiomas.",
+      p: "¿Qué pasa con el filtro en español, chino, árabe o hindi cuando lo rompés solo en inglés? ¿Se cae por igual? ¿Algunos idiomas quedan peor protegidos que otros?",
+    },
+  },
+  {
+    en: {
+      h: "Small models run on phones. They are the most accessible.",
+      p: "My hypothesis: if small models break more easily than large ones, then the models within reach of anyone — running on modest devices anywhere in the world — are exactly the most dangerous.",
+    },
+    es: {
+      h: "Los modelos chicos corren en celulares. Son los más accesibles.",
+      p: "Mi hipótesis: si los modelos chicos se rompen más fácil que los grandes, entonces los modelos que están al alcance de cualquiera — corriendo en dispositivos modestos en cualquier parte del mundo — son justamente los más peligrosos.",
+    },
+  },
+  {
+    en: {
+      h: "This research measures how much, and in which languages.",
+      p: "We run 4,200 evaluations on three Dense sizes of one specific model family (Gemma 4) across seven languages, comparing the normal version against the broken one. Then we look at how different each cell is.",
+    },
+    es: {
+      h: "Esta investigación mide cuánto y en qué idiomas.",
+      p: "Corremos 4.200 pruebas sobre tres tamaños Dense de un modelo específico (Gemma 4) en siete idiomas, comparando la versión normal contra la versión rota. Después vemos qué tan diferente es cada caso.",
+    },
+  },
+];
 ---
 
 <section class="section" id="resumen">
   <div class="container container--narrow">
-    <div class="section-number">01 — Resumen</div>
-    <h2>En 30 segundos</h2>
+    <div class="section-number">
+      <span data-lang="en">01 — Summary</span>
+      <span data-lang="es">01 — Resumen</span>
+    </div>
+    <h2>
+      <span data-lang="en">In 30 seconds</span>
+      <span data-lang="es">En 30 segundos</span>
+    </h2>
     <p class="lead" style="margin-top: var(--space-6);">
-      Si tenés poco tiempo, esto es lo mínimo que tenés que saber.
+      <span data-lang="en">If you only have a minute, this is the minimum to take away.</span>
+      <span data-lang="es">Si tenés poco tiempo, esto es lo mínimo que tenés que saber.</span>
     </p>
 
     <ol class="list-numbered" style="margin-top: var(--space-10);">
-      <li>
-        <h4>Existe una técnica para romper el filtro de seguridad de una IA.</h4>
-        <p class="muted">
-          A un modelo entrenado para negarse a pedidos dañinos ("no te puedo ayudar con eso") se le puede
-          quitar esa capacidad de rechazo. Se la "rompe" de forma permanente.
-        </p>
-      </li>
-      <li>
-        <h4>Esa técnica se aplica en inglés, pero los modelos hablan muchos idiomas.</h4>
-        <p class="muted">
-          ¿Qué pasa con el filtro en español, chino, árabe o hindi cuando lo rompés solo en inglés?
-          ¿Se cae por igual? ¿Algunos idiomas quedan peor protegidos que otros?
-        </p>
-      </li>
-      <li>
-        <h4>Los modelos chicos corren en celulares. Son los más accesibles.</h4>
-        <p class="muted">
-          Mi hipótesis: si los modelos chicos se rompen más fácil que los grandes, entonces los modelos
-          que están al alcance de cualquiera — incluyendo gente de países con menos recursos — son
-          justamente los más peligrosos.
-        </p>
-      </li>
-      <li>
-        <h4>Esta investigación mide cuánto y en qué idiomas.</h4>
-        <p class="muted">
-          Corremos 4.200 pruebas sobre tres tamaños Dense de un modelo específico (Gemma 4) en siete idiomas,
-          comparando la versión normal contra la versión rota. Después vemos qué tan diferente es cada caso.
-        </p>
-      </li>
+      {items.map((it) => (
+        <li>
+          <h4>
+            <span data-lang="en">{it.en.h}</span>
+            <span data-lang="es">{it.es.h}</span>
+          </h4>
+          <p class="muted">
+            <span data-lang="en">{it.en.p}</span>
+            <span data-lang="es">{it.es.p}</span>
+          </p>
+        </li>
+      ))}
     </ol>
   </div>
 </section>

@@ -1,26 +1,33 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import SizeVsCompliance from "../components/SizeVsCompliance.astro";
+import IntroAnimation from "../components/animations/IntroAnimation.astro";
+import RefusalDirection from "../components/animations/RefusalDirection.astro";
 
 const title = "Talk · 6 min — La paradoja de la democratización";
 const description =
   "Presentación de 6 minutos sobre Gemma 4, abliteration pública y la paradoja de la democratización. BAISH · BlueDot 2026.";
 ---
 
-<BaseLayout title={title} description={description}>
+<BaseLayout title={title} description={description} lang="es" current="talk" showNav={false}>
   <div class="talk" id="talk">
     <!-- 1. Cover -->
     <section class="slide slide--cover active" data-slide aria-labelledby="s1-title">
-      <div class="slide__content">
-        <p class="kicker">BAISH · BlueDot Technical AI Safety · Mayo 2026</p>
-        <h1 id="s1-title" class="slide__title slide__title--xl">
-          El modelo Gemma 4 más <em>jailbreakeable</em><br />
-          es el que cabe en un teléfono.
-        </h1>
-        <p class="slide__sub">
-          Cuando bajás el filtro de seguridad, el peor no es el más chico.
-        </p>
-        <p class="slide__byline">Gus Pardo · 6 min talk</p>
+      <div class="slide__content slide__content--split">
+        <div class="slide__text">
+          <p class="kicker">BAISH · BlueDot Technical AI Safety · Mayo 2026</p>
+          <h1 id="s1-title" class="slide__title slide__title--xl">
+            El modelo Gemma 4 más <em>jailbreakeable</em><br />
+            es el que cabe en un teléfono.
+          </h1>
+          <p class="slide__sub">
+            Cuando bajás el filtro de seguridad, el peor no es el más chico.
+          </p>
+          <p class="slide__byline">Gustavo Martin Alvarez · 6 min talk</p>
+        </div>
+        <div class="slide__media">
+          <IntroAnimation />
+        </div>
       </div>
     </section>
 
@@ -42,23 +49,28 @@ const description =
 
     <!-- 3. What is abliteration -->
     <section class="slide" data-slide aria-labelledby="s3-title">
-      <div class="slide__content">
-        <p class="kicker">Qué es <em>abliteration</em></p>
-        <h2 id="s3-title" class="slide__title">
-          Una sola dirección dentro del modelo dispara el rechazo.<br />
-          Se la elimina, y el modelo deja de rechazar.
-        </h2>
-        <ul class="slide__beats">
-          <li>
-            Cuando un modelo decide rechazar un pedido dañino, esa decisión vive en una sola dirección dentro de su <em>residual stream</em> (Arditi 2024). Eso es la <strong>refusal direction</strong>.
-          </li>
-          <li>
-            <em>Abliteration</em>: encontrar la dirección y proyectarla fuera de cada capa.
-          </li>
-          <li>
-            El modelo deja de rechazar y conserva el resto de sus capacidades.
-          </li>
-        </ul>
+      <div class="slide__content slide__content--split">
+        <div class="slide__text">
+          <p class="kicker">Qué es <em>abliteration</em></p>
+          <h2 id="s3-title" class="slide__title">
+            Una sola dirección dentro del modelo dispara el rechazo.<br />
+            Se la elimina, y el modelo deja de rechazar.
+          </h2>
+          <ul class="slide__beats">
+            <li>
+              Cuando un modelo decide rechazar un pedido dañino, esa decisión vive en una sola dirección dentro de su <em>residual stream</em> (Arditi 2024). Eso es la <strong>refusal direction</strong>.
+            </li>
+            <li>
+              <em>Abliteration</em>: encontrar la dirección y proyectarla fuera de cada capa.
+            </li>
+            <li>
+              El modelo deja de rechazar y conserva el resto de sus capacidades.
+            </li>
+          </ul>
+        </div>
+        <div class="slide__media">
+          <RefusalDirection />
+        </div>
       </div>
     </section>
 
@@ -271,14 +283,14 @@ const description =
           <article class="belief">
             <span class="belief__before">Antes</span>
             <p class="belief__before-txt">
-              "Los idiomas low-resource serán los canarios — los primeros en
-              romperse."
+              "Los idiomas con menos datos en el preentrenamiento serán los
+              canarios — los primeros en romperse."
             </p>
             <span class="belief__after">Ahora</span>
             <p class="belief__after-txt">
               Hindi resiste consistentemente en los 3 tamaños. Los idiomas
-              high-resource Western (DE, PT) son los más rotos en E4B. La
-              dirección del efecto va al revés de lo que esperaba.
+              occidentales de alta cobertura (DE, PT) son los más rotos en E4B.
+              La dirección del efecto va al revés de lo que esperaba.
             </p>
           </article>
         </div>
@@ -327,7 +339,10 @@ const description =
             </a>
           </li>
           <li>
-            <strong>Blog post:</strong> <a href="/">versión completa</a>
+            <strong>Blog post:</strong> <a href="/blog-post">versión completa (EN)</a>
+          </li>
+          <li>
+            <strong>Resumen del proyecto:</strong> <a href="/es">Español</a> · <a href="/">English</a>
           </li>
         </ul>
         <p class="slide__byline">Gracias · BAISH · BlueDot Rapid Grant 2026</p>
@@ -348,11 +363,126 @@ const description =
       </div>
     </section>
 
-    <!-- 12. Limitations (backup for Q&A) -->
+    <!-- 12. FAQ anticipadas (backup for Q&A) -->
     <section class="slide" data-slide aria-labelledby="s12-title">
       <div class="slide__content">
-        <p class="kicker">Limitaciones · backup para Q&amp;A</p>
+        <p class="kicker">Backup · FAQ probables</p>
         <h2 id="s12-title" class="slide__title">
+          Cinco preguntas que probablemente vienen.
+        </h2>
+        <ol class="faq-list">
+          <li class="faq">
+            <h4 class="faq__q">¿Y el modelo MoE 26B-A4B que dejaste afuera?</h4>
+            <p class="faq__a">
+              Excluido para no mezclar el efecto del <em>tamaño</em> con el de la
+              <em>arquitectura</em> (routing). Sub-pregunta independiente: comparar
+              26B-A4B vs E4B (mismos ~4B parámetros activos, distinto routing).
+            </p>
+          </li>
+          <li class="faq">
+            <h4 class="faq__q">¿Los modelos abliterados pierden capacidades?</h4>
+            <p class="faq__a">
+              No. Arditi 2024 reporta <strong>≈99% retención</strong> en MMLU /
+              HumanEval. El modelo sigue siendo útil — solo deja de negarse.
+              Eso es exactamente lo que lo hace peligroso.
+            </p>
+          </li>
+          <li class="faq">
+            <h4 class="faq__q">¿Qué defensas existen hoy?</h4>
+            <p class="faq__a">
+              Tres frentes: <strong>pre-publicación</strong> (tamper-resistance,
+              fine-tuning adversarial); <strong>detección</strong> (cosine sim de
+              la refusal direction publicada vs un baseline); <strong>distribución</strong>
+              (políticas en HuggingFace — paliativo, no solución).
+            </p>
+          </li>
+          <li class="faq">
+            <h4 class="faq__q">¿Por qué Hindi resiste más que Español, alemán o portugués?</h4>
+            <p class="faq__a">
+              Honestamente no sé. La <em>observación</em> es firme: Hindi cae siempre entre
+              los más bajos en los tres tamaños (39 / 65 / 60). El <em>mecanismo</em> es
+              especulación — una conjetura a testear es que su refusal direction esté
+              menos alineada con la de inglés, pero no analicé el cosine pair-por-par,
+              solo el promedio sobre los 21 pares. Necesita su propio análisis.
+            </p>
+          </li>
+          <li class="faq">
+            <h4 class="faq__q">¿Por qué el pico justo en E4B y no en otro tamaño?</h4>
+            <p class="faq__a">
+              Conjetura: E4B tiene capacidad para alinear los 7 idiomas en un
+              solo eje (geometría "limpia"), pero no la suficiente para
+              diferenciarlos como hace 31B. E2B no llega a alinearlos. Necesita
+              más puntos de la curva para validarlo.
+            </p>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- 13. Cosine methodology deep-dive (backup for Q&A) -->
+    <section class="slide" data-slide aria-labelledby="s13-title">
+      <div class="slide__content">
+        <p class="kicker">Backup metodológico · cosine similarity</p>
+        <h2 id="s13-title" class="slide__title">
+          Cómo se midió la similitud entre las refusal directions.
+        </h2>
+        <ol class="method-steps">
+          <li class="method-step">
+            <span class="method-step__num">1</span>
+            <div class="method-step__body">
+              <h4>Dos sets de prompts <em>por idioma</em></h4>
+              <p>
+                100 dañinos (BeaverTails traducido) + 100 inocuos curados (también traducidos).
+                Ambos en el <strong>mismo idioma</strong> — si los inocuos estuvieran en inglés, la
+                dirección confundiría "dañino vs inocuo" con "inglés vs idioma target".
+              </p>
+            </div>
+          </li>
+          <li class="method-step">
+            <span class="method-step__num">2</span>
+            <div class="method-step__body">
+              <h4>Activaciones del modelo <em>base</em></h4>
+              <p>
+                Cada prompt pasa por el <em>chat template</em>, se corre por la red, se extrae el
+                <em>residual stream</em> en la <strong>última capa</strong>, en el
+                <strong>último token</strong>. Un vector por prompt. 100 dañinos → matriz de 100 vectores.
+              </p>
+            </div>
+          </li>
+          <li class="method-step">
+            <span class="method-step__num">3</span>
+            <div class="method-step__body">
+              <h4>Refusal direction por idioma</h4>
+              <p>
+                <code>direction = mean(harmful) − mean(harmless)</code>, normalizado a norma 1.
+                <strong>Un vector por idioma</strong>, siete vectores por modelo. Método Arditi 2024 estándar.
+              </p>
+            </div>
+          </li>
+          <li class="method-step">
+            <span class="method-step__num">4</span>
+            <div class="method-step__body">
+              <h4>Cosine similarity entre los 21 pares</h4>
+              <p>
+                Siete idiomas dan <em>21 pares</em> (C(7,2)). Para cada par calculamos
+                <code>cos(θ) = a·b</code> (las direcciones ya están normalizadas).
+                Promediamos los 21 valores → el número que reporto.
+              </p>
+            </div>
+          </li>
+        </ol>
+        <p class="slide__caption">
+          Resultado: <strong>0.31</strong> en E2B · <strong>0.37</strong> en E4B (pico) · <strong>0.27</strong> en 31B.
+          Max cross-lingual también pica en E4B: 0.71 vs 0.67 (E2B) y 0.52 (31B).
+        </p>
+      </div>
+    </section>
+
+    <!-- 14. Limitations (backup for Q&A) -->
+    <section class="slide" data-slide aria-labelledby="s14-title">
+      <div class="slide__content">
+        <p class="kicker">Limitaciones · backup para Q&amp;A</p>
+        <h2 id="s14-title" class="slide__title">
           Hallazgo <em>preliminar</em>. Necesita más testing.
         </h2>
         <ul class="slide__beats">
@@ -368,9 +498,10 @@ const description =
 
   <!-- HUD -->
   <nav class="talk-hud" aria-label="Navegación de slides">
+    <a class="hud-btn hud-btn--link" href="/" aria-label="Volver al inicio" title="Home">⌂</a>
     <button class="hud-btn" data-action="prev" aria-label="Anterior">←</button>
     <span class="hud-counter">
-      <span id="slide-current">1</span> / <span id="slide-total">12</span>
+      <span id="slide-current">1</span> / <span id="slide-total">14</span>
     </span>
     <button class="hud-btn" data-action="next" aria-label="Siguiente">→</button>
     <button class="hud-btn" data-action="fullscreen" aria-label="Pantalla completa">⛶</button>
@@ -397,7 +528,7 @@ const description =
       display: none;
       align-items: center;
       justify-content: center;
-      padding: clamp(var(--space-8), 4vw, var(--space-16));
+      padding: clamp(var(--space-6), 3vw, var(--space-12));
       background: var(--bg-base);
     }
     .slide.active { display: flex; }
@@ -590,14 +721,37 @@ const description =
     .slide-chart {
       width: 100%;
     }
-    .slide-chart .size-chart {
-      margin: 0;
-      padding: var(--space-4) var(--space-5);
-      background: var(--surface-1);
+
+    /* Two-column slide layout: text/title on the left, animation on the right.
+       Used on slides 1, 3. Ratio + max-width tuned so the text column stays around
+       ~850px (~ same as before) while the media column grows: tighter gap = the
+       drawing's "left margin" is what gets sacrificed to make the drawing bigger. */
+    .slide__content--split {
+      display: grid;
+      grid-template-columns: 1.6fr 1fr;
+      gap: clamp(var(--space-2), 1.5vw, var(--space-5));
+      align-items: center;
+      width: 100%;
+      max-width: 1400px;
     }
-    .slide-chart .size-chart__header,
-    .slide-chart .size-chart__caption {
-      display: none;
+    .slide__content--split .slide__text {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-6);
+      min-width: 0;
+    }
+    .slide__content--split .slide__media {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      min-width: 0;
+    }
+    @media (max-width: 900px) {
+      .slide__content--split {
+        grid-template-columns: 1fr;
+        gap: var(--space-6);
+      }
     }
 
     /* Slide 7 — mechanism steps */
@@ -888,8 +1042,10 @@ const description =
       cursor: pointer;
       font-size: 1rem;
       font-family: var(--font-mono);
+      text-decoration: none;
       transition: background 120ms, color 120ms, border-color 120ms;
     }
+    .hud-btn--link { font-size: 1.1rem; }
     .hud-btn:hover {
       background: var(--surface-2);
       color: var(--text-primary);
@@ -917,6 +1073,122 @@ const description =
     }
     @media (max-width: 640px) {
       .talk-hint { display: none; }
+    }
+
+    /* Slide 13 — Method steps (numbered methodology breakdown) */
+    .method-steps {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-4);
+    }
+    .method-step {
+      display: flex;
+      gap: var(--space-4);
+      align-items: flex-start;
+      max-width: 85ch;
+    }
+    .method-step__num {
+      flex: 0 0 auto;
+      width: 32px;
+      height: 32px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--alpha-amber-12);
+      color: var(--amber-500);
+      border-radius: 50%;
+      font-family: var(--font-mono);
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+    .method-step__body {
+      flex: 1 1 auto;
+      min-width: 0;
+    }
+    .method-step__body h4 {
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: clamp(1rem, 1.4vw, 1.15rem);
+      line-height: 1.3;
+      color: var(--text-primary);
+      margin: 0 0 var(--space-1);
+    }
+    .method-step__body p {
+      margin: 0;
+      font-family: var(--font-body);
+      font-size: clamp(0.9rem, 1.2vw, 1.05rem);
+      line-height: 1.55;
+      color: var(--text-secondary);
+    }
+    .method-step__body em {
+      font-style: italic;
+      color: var(--amber-500);
+    }
+    .method-step__body strong {
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+    .method-step__body code {
+      font-family: var(--font-mono);
+      font-size: 0.92em;
+      background: var(--surface-2);
+      padding: 1px 0.35em;
+      border-radius: var(--radius-sm);
+      color: var(--text-primary);
+    }
+
+    /* Slide 12 — FAQ list (numbered Q&A pairs, scannable backup) */
+    .faq-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-4);
+      counter-reset: faq;
+    }
+    .faq {
+      counter-increment: faq;
+      padding-left: var(--space-8);
+      position: relative;
+      max-width: 90ch;
+    }
+    .faq::before {
+      content: "Q" counter(faq);
+      position: absolute;
+      left: 0;
+      top: 0.15em;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      letter-spacing: 0.04em;
+      color: var(--amber-500);
+      font-weight: 600;
+    }
+    .faq__q {
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: clamp(1rem, 1.5vw, 1.2rem);
+      line-height: 1.3;
+      color: var(--text-primary);
+      margin: 0 0 var(--space-2);
+    }
+    .faq__a {
+      margin: 0;
+      font-family: var(--font-body);
+      font-size: clamp(0.9rem, 1.25vw, 1.05rem);
+      line-height: 1.55;
+      color: var(--text-secondary);
+    }
+    .faq__a em {
+      font-style: italic;
+      color: var(--amber-500);
+    }
+    .faq__a strong {
+      color: var(--text-primary);
+      font-weight: 600;
     }
 
     /* View Transitions API — cross-fade with subtle vertical motion */

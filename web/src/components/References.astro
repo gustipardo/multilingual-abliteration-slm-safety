@@ -5,7 +5,8 @@ const refs = [
     year: "2025",
     title: "Refusal Direction is Universal Across Safety-Aligned Languages",
     venue: "arXiv:2505.17306",
-    note: "Referencia metodológica principal. Muestra que la dirección de rechazo se comparte entre idiomas en modelos de 7B+. Nuestro proyecto extiende este resultado a sub-7B y a Gemma 4.",
+    note_en: "Main methodological reference. Shows that the refusal direction is shared across languages on 7B+ models. Our project extends this to sub-7B and to Gemma 4.",
+    note_es: "Referencia metodológica principal. Muestra que la dirección de rechazo se comparte entre idiomas en modelos de 7B+. Nuestro proyecto extiende este resultado a sub-7B y a Gemma 4.",
     link: "https://arxiv.org/abs/2505.17306",
   },
   {
@@ -13,7 +14,8 @@ const refs = [
     year: "2024",
     title: "Refusal in Language Models Is Mediated by a Single Direction",
     venue: "NeurIPS 2024",
-    note: "Paper fundacional de abliteration. Establece que el rechazo vive en una dirección específica y muestra cómo removerla.",
+    note_en: "The foundational paper for abliteration. Establishes that refusal lives in a specific direction and shows how to remove it.",
+    note_es: "Paper fundacional de abliteration. Establece que el rechazo vive en una dirección específica y muestra cómo removerla.",
     link: "https://arxiv.org/abs/2406.11717",
   },
   {
@@ -21,15 +23,17 @@ const refs = [
     year: "2024",
     title: "BeaverTails: Harmful Prompt Dataset",
     venue: "HuggingFace",
-    note: "Dataset público de prompts dañinos. Nuestros 100 prompts salen del split 30k_test filtrado por is_safe == False.",
+    note_en: "Public dataset of harmful prompts. Our 100 prompts come from the 30k_test split filtered by is_safe == False.",
+    note_es: "Dataset público de prompts dañinos. Nuestros 100 prompts salen del split 30k_test filtrado por is_safe == False.",
     link: "https://huggingface.co/datasets/PKU-Alignment/BeaverTails",
   },
   {
     authors: "huihui-ai",
     year: "2026",
-    title: "Huihui Gemma 4 Abliterated (E2B, E4B, 31B; 26B-A4B disponible para sub-pregunta)",
+    title: "Huihui Gemma 4 Abliterated (E2B, E4B, 31B; 26B-A4B available for the sub-question)",
     venue: "HuggingFace",
-    note: "Versiones abliteradas públicas. Usamos las tres Dense (E2B, E4B, 31B) para el experimento principal; la MoE 26B-A4B queda para una sub-pregunta posterior. Modelan el threat model real.",
+    note_en: "Public abliterated versions. We use the three Dense sizes (E2B, E4B, 31B) for the main experiment; the MoE 26B-A4B is kept for a later sub-question. They model the real threat scenario.",
+    note_es: "Versiones abliteradas públicas. Usamos las tres Dense (E2B, E4B, 31B) para el experimento principal; la MoE 26B-A4B queda para una sub-pregunta posterior. Modelan el threat model real.",
     link: "https://huggingface.co/huihui-ai",
   },
   {
@@ -37,26 +41,37 @@ const refs = [
     year: "2024",
     title: "WildGuard: Open One-Stop Moderation Tools",
     venue: "arXiv",
-    note: "Metodología de evaluación con LLM-as-judge. Inspira nuestro uso de Claude Haiku.",
+    note_en: "LLM-as-judge evaluation methodology. Inspires our use of Claude Haiku.",
+    note_es: "Metodología de evaluación con LLM-as-judge. Inspira nuestro uso de Claude Haiku.",
     link: "https://arxiv.org/abs/2406.18495",
   },
 ];
 
 const project = {
   repo: "https://github.com/gustipardo/multilingual-abliteration-slm-safety",
-  protocol: "PROTOCOL.md",
-  bitacora: "bitacora.md",
 };
 ---
 
 <section class="section" id="referencias">
   <div class="container container--narrow">
-    <div class="section-number">12 — Fuentes</div>
-    <h2>De dónde sale cada cosa</h2>
+    <div class="section-number">
+      <span data-lang="en">12 — Sources</span>
+      <span data-lang="es">12 — Fuentes</span>
+    </div>
+    <h2>
+      <span data-lang="en">Where each thing comes from</span>
+      <span data-lang="es">De dónde sale cada cosa</span>
+    </h2>
 
     <p class="lead" style="margin-top: var(--space-6);">
-      Toda decisión metodológica de este proyecto está anclada a una fuente verificable.
-      Estas son las principales.
+      <span data-lang="en">
+        Every methodological decision in this project is anchored to a verifiable source.
+        These are the main ones.
+      </span>
+      <span data-lang="es">
+        Toda decisión metodológica de este proyecto está anclada a una fuente verificable.
+        Estas son las principales.
+      </span>
     </p>
 
     <div style="margin-top: var(--space-12); display: grid; gap: var(--space-5);">
@@ -69,23 +84,36 @@ const project = {
             <a href={r.link} target="_blank" rel="noopener" style="border-bottom: none;">{r.title} →</a>
           </div>
           <div style="color: var(--text-secondary); font-size: 15px; line-height: 1.6;">
-            {r.note}
+            <span data-lang="en">{r.note_en}</span>
+            <span data-lang="es">{r.note_es}</span>
           </div>
         </div>
       ))}
     </div>
 
-    <h3 style="margin-top: var(--space-16);">Material del proyecto</h3>
+    <h3 style="margin-top: var(--space-16);">
+      <span data-lang="en">Project material</span>
+      <span data-lang="es">Material del proyecto</span>
+    </h3>
 
     <ul class="bullet-list" style="margin-top: var(--space-4);">
       <li>
-        <a href={project.repo} target="_blank" rel="noopener">Repositorio en GitHub</a> — código fuente completo del pipeline
+        <a href={project.repo} target="_blank" rel="noopener">
+          <span data-lang="en">GitHub repository</span>
+          <span data-lang="es">Repositorio en GitHub</span>
+        </a>
+        <span data-lang="en"> — full pipeline source code</span>
+        <span data-lang="es"> — código fuente completo del pipeline</span>
       </li>
       <li>
-        <code>PROTOCOL.md</code> — protocolo experimental reproducible paso a paso, en el repo
+        <code>PROTOCOL.md</code>
+        <span data-lang="en"> — reproducible step-by-step experimental protocol, in the repo</span>
+        <span data-lang="es"> — protocolo experimental reproducible paso a paso, en el repo</span>
       </li>
       <li>
-        <code>idea.md</code> — documento original de la idea con hipótesis y marco teórico
+        <code>idea.md</code>
+        <span data-lang="en"> — original idea document with hypotheses and theoretical framing</span>
+        <span data-lang="es"> — documento original de la idea con hipótesis y marco teórico</span>
       </li>
     </ul>
   </div>
