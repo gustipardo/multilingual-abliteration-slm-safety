@@ -24,6 +24,19 @@ const description =
             Cuando bajás el filtro de seguridad, el peor no es el más chico.
           </p>
           <p class="slide__byline">Gustavo Martin Alvarez · 6 min talk</p>
+
+          <div class="slide__motivation">
+            <p class="slide__motivation-label">Preguntas que motivaron el proyecto</p>
+            <ul class="slide__motivation-list">
+              <li>
+                ¿Los modelos más accesibles son los más peligrosos cuando alguien les rompe el filtro?
+                <em>· democratization safety paradox</em>
+              </li>
+              <li>
+                ¿Romper la seguridad en inglés rompe también la seguridad en los otros idiomas que el modelo habla?
+              </li>
+            </ul>
+          </div>
         </div>
         <div class="slide__media">
           <IntroAnimation />
@@ -717,9 +730,82 @@ const description =
       color: var(--text-tertiary);
     }
 
-    /* Slide 6 — chart wrapper */
+    /* Slide 6 — chart wrapper. The embedded SizeVsCompliance comes with its
+       own header (h4 + subtitle) and caption that duplicate the slide's
+       kicker/title/caption, plus a card frame that adds noise on a
+       projection. Strip all of it so the SVG sits naked inside the slide. */
     .slide-chart {
       width: 100%;
+    }
+    .slide-chart .size-chart {
+      margin: 0;
+      padding: 0;
+      background: transparent;
+      border: none;
+      border-radius: 0;
+    }
+    .slide-chart .size-chart__header,
+    .slide-chart .size-chart__caption {
+      display: none;
+    }
+    /* Crop the SVG's internal whitespace — viewBox carries 64u of empty space
+       at the top (M.top) and ~14u at the bottom before the axis title. On a
+       1080p projection that translates to ~75 / ~17 px of dead air. Negative
+       margins pull the surrounding flex items closer without distorting the
+       chart itself. */
+    .slide-chart .size-chart svg {
+      margin-top: clamp(-72px, -4vw, -36px);
+      margin-bottom: clamp(-28px, -1.5vw, -14px);
+    }
+    /* Tighten the flex gap on the chart slide only — default 32px is too
+       breathy when the slide is dominated by the SVG. */
+    .slide--data .slide__content {
+      gap: var(--space-4);
+    }
+
+    /* Slide 1 — small "motivating questions" block under the byline.
+       Subdued by design so it doesn't fight the XL title. */
+    .slide__motivation {
+      margin-top: var(--space-4);
+      padding-top: var(--space-3);
+      border-top: 1px solid var(--border-subtle);
+      max-width: 56ch;
+    }
+    .slide__motivation-label {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-tertiary);
+      margin: 0 0 var(--space-2);
+    }
+    .slide__motivation-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+      font-family: var(--font-body);
+      font-size: clamp(0.8rem, 1vw, 0.95rem);
+      line-height: 1.45;
+      color: var(--text-secondary);
+    }
+    .slide__motivation-list li {
+      position: relative;
+      padding-left: var(--space-4);
+    }
+    .slide__motivation-list li::before {
+      content: "›";
+      position: absolute;
+      left: 0;
+      top: 0;
+      color: var(--amber-500);
+      font-family: var(--font-mono);
+    }
+    .slide__motivation-list em {
+      font-style: italic;
+      color: var(--amber-500);
     }
 
     /* Two-column slide layout: text/title on the left, animation on the right.
