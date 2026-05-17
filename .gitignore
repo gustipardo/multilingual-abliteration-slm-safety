@@ -30,6 +30,9 @@ __pycache__/
 # Private notes (WhatsApp logs, scratch files)
 context.txt
 
+# Personal writing-style notes (internal working doc, not for public readers)
+WRITING_PREFERENCES.md
+
 # Keep prompts in git (they're just text, ~10KB)
 !data/prompts/
 
