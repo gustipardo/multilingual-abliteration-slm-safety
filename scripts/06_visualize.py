@@ -23,6 +23,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
+from matplotlib.lines import Line2D
 from scipy.stats import spearmanr
 
 # Principal experiment: 3 Dense sizes only.
@@ -100,34 +101,125 @@ def fig_compliance_delta(df):
 
 
 def fig_size_vs_compliance(df):
-    abliterated = df[df["condition"] == "abliterated"].copy()
-    avg = abliterated.groupby("size")["compliance_rate"].mean().reset_index()
-    avg["params"] = avg["size"].map(SIZE_PARAMS)
-    avg = avg.sort_values("params")
+    # Design tokens — light theme from web/src/styles/global.css
+    BG, PLOT_BG, PANEL_BG = "#FAF7F1", "#F3EFE6", "#E3DCC9"
+    BORDER, BORDER_SUB = "#D8CFBC", "#E8E2D2"
+    TEXT_PRI, TEXT_SEC, TEXT_TER = "#11182A", "#3E4560", "#6E7791"
+    AMBER, AMBER_DARK = "#B87826", "#8F5C1D"
+    TERRA, TERRA_DARK = "#C67B5C", "#A55A3D"
 
-    rho, p = spearmanr(avg["params"], avg["compliance_rate"])
+    means = (df.groupby(["size", "condition"])["compliance_rate"]
+               .mean().unstack().reindex(SIZES_ORDERED))
+    params_x = [SIZE_PARAMS[s] for s in SIZES_ORDERED]
+    base_y = (means["base"] * 100).tolist()
+    abl_y = (means["abliterated"] * 100).tolist()
+    labels = [s.upper() for s in SIZES_ORDERED]
+    peak_idx = labels.index("E4B")
+    jump = abl_y[peak_idx] - abl_y[0]
+    drop = abl_y[2] - abl_y[peak_idx]
 
-    fig, ax = plt.subplots(figsize=(7, 5))
-    ax.plot(avg["params"], avg["compliance_rate"], "o-",
-            color="#e74c3c", linewidth=2.5, markersize=11, zorder=3)
-    for _, row in avg.iterrows():
-        ax.annotate(row["size"].upper(),
-                    (row["params"], row["compliance_rate"]),
-                    textcoords="offset points", xytext=(10, 4), fontsize=10)
-    ax.set_xlabel("Model Size (Billions of Parameters, log scale)", fontsize=11)
-    ax.set_ylabel("Avg. Compliance Rate Post-Abliteration", fontsize=11)
+    fig, ax = plt.subplots(figsize=(11, 6.5), dpi=200)
+    fig.patch.set_facecolor(BG)
+    ax.set_facecolor(PLOT_BG)
+
+    # Dashed vertical guide at the peak
+    ax.axvline(params_x[peak_idx], color=TERRA_DARK, linewidth=1,
+               linestyle=(0, (3, 5)), alpha=0.5, zorder=1)
+
+    # Lines — abliterated thicker; base secondary
+    ax.plot(params_x, base_y, "-", color=AMBER, linewidth=2.5,
+            zorder=3, solid_capstyle="round")
+    ax.plot(params_x, abl_y, "-", color=TERRA, linewidth=4,
+            zorder=4, solid_capstyle="round")
+
+    # Base markers (halo + dot + label above — keeps clear of X-axis labels)
+    for x, y in zip(params_x, base_y):
+        ax.plot(x, y, "o", markersize=12, markerfacecolor=PLOT_BG,
+                markeredgecolor=AMBER, markeredgewidth=2, zorder=5)
+        ax.plot(x, y, "o", markersize=6, color=AMBER, zorder=6)
+        ax.text(x, y + 5.5, f"{y:.1f}%", ha="center", va="bottom",
+                fontsize=10, color=AMBER_DARK, fontweight="bold")
+
+    # Abliterated markers (peak gets glow + bigger dot + label above)
+    for i, (x, y) in enumerate(zip(params_x, abl_y)):
+        is_peak = i == peak_idx
+        if is_peak:
+            ax.plot(x, y, "o", markersize=34, color=TERRA, alpha=0.16, zorder=4)
+            ax.plot(x, y, "o", markersize=22, color=TERRA, alpha=0.22, zorder=4)
+        ax.plot(x, y, "o", markersize=16 if is_peak else 13,
+                markerfacecolor=PLOT_BG, markeredgecolor=TERRA,
+                markeredgewidth=2.5, zorder=6)
+        ax.plot(x, y, "o", markersize=9 if is_peak else 7,
+                color=TERRA, zorder=7)
+        ax.text(x, y + 5.5, f"{y:.1f}%", ha="center", va="bottom",
+                fontsize=11 if is_peak else 10,
+                color=TERRA_DARK, fontweight="bold")
+
+    # Peak annotation badge
+    ax.annotate(
+        f"PEAK VULNERABILITY\n"
+        f"+{jump:.1f} pp vs E2B   ·   {drop:+.1f} pp vs 31B",
+        xy=(params_x[peak_idx], abl_y[peak_idx]),
+        xytext=(params_x[peak_idx] * 1.8, abl_y[peak_idx] + 16),
+        fontsize=10, color=TEXT_PRI, ha="left", va="center",
+        bbox=dict(boxstyle="round,pad=0.7", facecolor=PANEL_BG,
+                  edgecolor=TERRA_DARK, linewidth=1.25),
+        arrowprops=dict(arrowstyle="-", color=TERRA_DARK,
+                        linewidth=1.5, linestyle=(0, (2, 3))),
+    )
+
+    # Axes
     ax.set_xscale("log")
-    ax.set_xticks([2, 4, 31])
-    ax.set_xticklabels(["2B", "4B", "31B"])
-    ax.set_title(f"Smaller Models → Higher Compliance After Abliteration\n"
-                 f"Gemma 4 Dense · Spearman ρ = {rho:.3f}, p = {p:.3f}",
-                 fontsize=12)
-    ax.set_ylim(0, 1.05)
-    ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f"{x:.0%}"))
-    ax.grid(True, alpha=0.3, which="both")
-    plt.tight_layout()
+    ax.set_xticks(params_x)
+    ax.set_xticklabels([f"{lab}\n~{p}B params" for lab, p in zip(labels, params_x)],
+                       fontsize=11, color=TEXT_PRI)
+    ax.minorticks_off()
+    ax.set_ylim(0, 100)
+    ax.set_yticks([0, 20, 40, 60, 80, 100])
+    ax.set_yticklabels([f"{v}%" for v in [0, 20, 40, 60, 80, 100]],
+                       fontsize=10, color=TEXT_TER)
+    ax.set_xlabel("MODEL SIZE  ·  LOGARITHMIC SCALE", fontsize=10,
+                  color=TEXT_SEC, labelpad=14, fontweight="bold")
+    ax.set_ylabel("MEAN COMPLIANCE (%)", fontsize=10,
+                  color=TEXT_SEC, labelpad=14, fontweight="bold")
+
+    ax.grid(True, axis="y", linestyle=(0, (2, 4)), color=BORDER_SUB,
+            linewidth=1, zorder=0)
+    ax.grid(False, axis="x")
+    for side in ["top", "right"]:
+        ax.spines[side].set_visible(False)
+    for side in ["left", "bottom"]:
+        ax.spines[side].set_color(BORDER)
+        ax.spines[side].set_linewidth(1.5)
+
+    # Title + subtitle (figure-level so they sit cleanly above the plot)
+    fig.suptitle("Mean post-abliteration compliance is not monotonic in size",
+                 fontsize=18, fontweight="bold", color=TEXT_PRI,
+                 x=0.05, y=0.97, ha="left", fontfamily="serif")
+    fig.text(0.05, 0.915,
+             "Gemma 4 Dense  ·  7 languages  ·  100 harmful prompts per language  ·  "
+             "base vs abliterated (single-vector)",
+             fontsize=11, color=TEXT_TER, ha="left", fontfamily="monospace")
+
+    # Legend
+    legend_handles = [
+        Line2D([0], [0], color=TERRA, linewidth=4, marker="o",
+               markersize=8, markerfacecolor=TERRA,
+               label="Abliterated (single-vector)"),
+        Line2D([0], [0], color=AMBER, linewidth=2.5, marker="o",
+               markersize=6, markerfacecolor=AMBER,
+               label="Base (intact filter)"),
+    ]
+    leg = ax.legend(handles=legend_handles, loc="upper right",
+                    framealpha=0.96, fancybox=True, fontsize=10,
+                    edgecolor=BORDER, facecolor=PLOT_BG)
+    leg.get_frame().set_linewidth(1)
+    for text in leg.get_texts():
+        text.set_color(TEXT_SEC)
+
+    plt.tight_layout(rect=[0, 0, 1, 0.88])
     out = Path("figures/size_vs_compliance.png")
-    plt.savefig(out, dpi=150)
+    plt.savefig(out, dpi=200, facecolor=BG, bbox_inches="tight")
     plt.close()
     print(f"Saved → {out}")
 
